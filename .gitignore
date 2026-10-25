@@ -44,3 +44,4 @@ next-env.d.ts
 # private content, never commit
 /private-content/
 *.pdf
+/public/pdfjs/

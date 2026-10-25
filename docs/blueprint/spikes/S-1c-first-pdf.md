@@ -28,3 +28,11 @@
 ## Next
 
 Browser-side S-1a/S-1b (render performance, detection accuracy) once the viewer prototype exists.
+
+## Update 2026-10-25 · automated check (vitest, real PDF)
+
+`extractPrintedLabels` (src/lib/pdf/page-map.ts) maps PDF pages 1–8 to printed 71–78: **8/8 `high` confidence, agreement 100%, offset 70**. Test runs against the private local copy and skips when the file is absent.
+
+## Viewer prototype (M3a–M3c, first cut)
+
+Route `/lab/viewer` (noindex): own PDF.js viewer (virtualised pages, text layer, zoom, dark pages), scroll-based page detection (400 ms stable rule, jump suppression), printed-page labels, "Practice this page", follow-my-reading toggle, swap/hide layout, per-page render timing and detection log. The chosen PDF is read in the browser only. Detector has unit tests; **render performance on the heavy pages 3 and 6 still needs a real browser run (open the lab, check "Spike metrics")**.

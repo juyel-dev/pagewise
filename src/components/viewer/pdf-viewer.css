@@ -1,0 +1,7 @@
+.pdfv-scroll { position: relative; overflow: auto; background: var(--surface-2); outline-offset: -2px; }
+.pdfv-page { position: relative; margin: 0 auto 12px; background: #fff; box-shadow: var(--shadow-card); }
+.pdfv-page canvas { display: block; }
+.pdfv-dark .pdfv-page canvas { filter: invert(0.9) hue-rotate(180deg); }
+.pdfv-page .textLayer { position: absolute; inset: 0; overflow: clip; line-height: 1; text-align: initial; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; }
+.pdfv-page .textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
+.pdfv-page .textLayer ::selection { background: rgb(20 128 98 / 0.3); }
