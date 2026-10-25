@@ -40,9 +40,9 @@ No calendar dates are promised; each milestone has exit criteria, and we move on
 | Exam-season spike | Outage | Load test, CDN, degradation plan | CTO |
 | Edition changes in NCERT | Stale questions | Edition field, edition-impact review, retire/re-map flow | Content lead |
 
-## 4. Open questions the owner must decide (with recommendation)
+## 4. Decisions (all recommendations accepted by owner on 2026-10-25)
 
-| # | Question | Recommendation |
+| # | Question | Decision |
 |---|---|---|
 | D-1 | **Final product name** (placeholder "PageWise"; no "NCERT"/"NEET" in name) | Decide before M8; keep isolated in `brand.ts` |
 | D-2 | Is the first audience adults/droppers only during closed beta, to postpone parental consent? | Yes: beta for 18+, consent flow before public launch |
@@ -59,6 +59,10 @@ No calendar dates are promised; each milestone has exit criteria, and we move on
 | D-13 | Analytics tool (Plausible vs PostHog) | Plausible-style cookieless for launch |
 | D-14 | Will you personally act as admin, and who are the first 5 reviewers? | Owner is admin; recruit reviewers during M5–M6 |
 
+| D-15 | How to show NCERT PDFs | **Own PDF.js viewer with authorized PDFs**; owner handles permission; iframe stays as fallback (doc 09) |
+| D-16 | Pane layout | Questions left, viewer right, hide/swap supported (doc 09 §6) |
+| D-17 | Build order | Viewer → Page detection → Page mapping → Question DB → Practice mode |
+
 ## 5. Approval
 
-When D-1…D-14 are answered, this blueprint becomes v1.0, `decisions.md` is updated with the choices, and M1 (spikes) starts. Until then: **no app code**.
+Blueprint is v1.0. Spikes S-1 is replaced by S-1a…S-1e (doc 09 §10). Next step: M1 spikes, then M2.

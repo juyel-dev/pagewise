@@ -1,6 +1,6 @@
 # Blueprint · 00 · Master blueprint
 
-**Status:** DRAFT v1, awaiting owner review and approval. **No app code is written until this is approved.**
+**Status:** v1.0, approved by owner on 2026-10-25 (all recommendations in doc 08 accepted; PDF approach per doc 09). App code may start with milestone M1 spikes, in the order of doc 09.
 **Roles in this document:** product (what), architecture (how), design (feel), ops (run), all written to production level.
 
 ## 1. What we are building
@@ -20,7 +20,8 @@ A web app where a NEET UG aspirant reads an NCERT page on the left and practises
 | `05-security-privacy.md` | Threats, auth, minors/DPDP, abuse, retention |
 | `06-content-and-reviewers.md` | Question pipeline, quality bar, reviewer console and community |
 | `07-quality-ops.md` | Testing, accessibility, analytics events, SEO, observability, launch checklist |
-| `08-build-plan-and-open-questions.md` | Milestones, spikes, risks, **decisions the owner must make** |
+| `08-build-plan-and-open-questions.md` | Milestones, spikes, risks, accepted decisions |
+| `09-pdf-viewer-spec.md` | **Own PDF.js viewer, page detection, page mapping, practice-this-page, PDF storage** (supersedes iframe approach) |
 
 Existing docs (vision, roadmap, design foundations, tech stack, content guardrails, decisions) remain valid. Where this blueprint refines them, it says so and `decisions.md` is updated after approval.
 

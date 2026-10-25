@@ -25,7 +25,8 @@ Planning is the product. These docs are written **before** each build step so th
 - [05 Security and privacy](blueprint/05-security-privacy.md)
 - [06 Content and reviewers](blueprint/06-content-and-reviewers.md)
 - [07 Quality, analytics, launch](blueprint/07-quality-ops.md)
-- [08 Build plan and open questions](blueprint/08-build-plan-and-open-questions.md)
+- [08 Build plan and decisions](blueprint/08-build-plan-and-open-questions.md)
+- [09 Own PDF viewer, page detection, page mapping](blueprint/09-pdf-viewer-spec.md)
 
 ### Frontend
 - [01 Design foundations](frontend/01-design-foundations.md)
@@ -58,4 +59,5 @@ Planning is the product. These docs are written **before** each build step so th
 |---|---|---|
 | 2026-10-24 | Planning + Landing page | Vision, roadmap, design foundations, landing spec and build. Static, no backend. |
 | 2026-10-25 | Contrast audit and fixes | Added `scripts/check-contrast.py`. Fixed input-border, dark-hover and streak-chip contrast and the phone header overflow. Wrote the launch-edition landing spec (01b). |
-| 2026-10-25 | Master blueprint (draft v1) | Feature, screen, data, system, security, content, QA specs and open decisions. Build paused until approved. |
+| 2026-10-25 | Master blueprint v1.0 | Feature, screen, data, system, security, content, QA specs and open decisions. Build paused until approved. |
+| 2026-10-25 | Blueprint approved + PDF viewer spec (doc 09) | Owner accepted all recommendations; own PDF.js viewer chosen; decisions 18–21 logged. |

@@ -2,6 +2,8 @@
 
 > This is an engineering/product document, not legal advice. Have a lawyer review before public launch.
 
+> **Update 2026-10-25 (decision D-15):** the owner chose an own PDF.js viewer with authorized NCERT PDFs and is obtaining permission himself. Rules below about hosting/proxying apply **unless** `docs/legal/ncert-permission.md` records permission covering hosting and display. See `docs/blueprint/09-pdf-viewer-spec.md` §8.
+
 ## 1. NCERT content: the "official link" approach
 
 **Principle:** the NCERT book is NCERT's property. We never host, copy, mirror or republish it. We show students NCERT's own official PDF and add *our own* original practice questions beside it.

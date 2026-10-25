@@ -15,6 +15,8 @@ Builds on `docs/architecture/01-tech-stack.md`. This doc fixes the decisions tha
 
 Auth is enforced in server components/actions and middleware; client checks are only for UX.
 
+> **Update 2026-10-25:** primary strategy is now the own PDF.js viewer in `09-pdf-viewer-spec.md`. Tiers below are kept as the feature-flagged fallback.
+
 ## 2. NCERT pane strategy (the biggest technical risk)
 
 Facts to design around: the iframe is cross-origin; we **cannot** read its scroll position, detect its page, or highlight text; mobile browsers often cannot render PDFs inline; NCERT may block framing or change URLs.

@@ -2,6 +2,8 @@
 
 Engineering plan, not legal advice. Lawyer review is a launch gate (doc 07).
 
+> **Update 2026-10-25:** hosted NCERT PDFs add private storage, signed URLs and a permission gate; see `09-pdf-viewer-spec.md` §7–9. Replace the `frame-src` NCERT rule with the CSP in §9 there.
+
 ## 1. Assets and threats
 
 | Asset | Threat | Control |

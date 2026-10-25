@@ -21,3 +21,7 @@ Lightweight record of decisions, newest last. Each entry: what, why, and what wo
 | 15 | Colour contrast is machine-checked (`scripts/check-contrast.py`); token changes must keep it green | An audit on 2026-10-25 found three failing pairs in the first build | n/a |
 | 16 | The landing page stays mobile-first even though the app is laptop-first *(proposed, please confirm)* | Visitors arrive from Instagram, YouTube and Telegram links, mostly on phones | Analytics show otherwise |
 | 17 | When the app opens, the landing page switches from waitlist to sign-in with one config flag (spec: screens/01b) | Avoids rebuilding the page | n/a |
+| 18 | Blueprint v1.0 approved; all recommendations D-1…D-14 in `blueprint/08` accepted (beta 18+ first, separate content repo + CDN, public static answers accepted for practice, Google + email link, Hindi then Bengali, laptop-first, credits before stipend, owner is admin) | Owner approval 2026-10-25 | Spike results or legal advice differ |
+| 19 | **Own PDF.js viewer with authorized NCERT PDFs** replaces official-link embed as the primary approach (D-15). Owner obtains permission; iframe/`Open NCERT page` kept as flagged fallback | Real page tracking, phone support, printed-page mapping | Permission scope narrower than hosting + display |
+| 20 | Layout: questions left, viewer right, hideable, swappable (D-16) | Owner request | Usability feedback |
+| 21 | Build order Viewer → Page detection → Page mapping → Question DB → Practice mode (D-17) | Each step depends on the previous | n/a |
