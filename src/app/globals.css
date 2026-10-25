@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+:root {
+ color-scheme:light; --canvas:#fafaf7; --surface:#ffffff; --surface-2:#f2f4ee; --line:#e2e6de; --field:#78877f;
+ --ink:#12201a; --ink-2:#3b4a43; --muted:#62736a;
+ --brand:#148062; --brand-hover:#116750; --brand-soft:#e6f5ee; --brand-text:#116750; --brand-ring:#1f9c77;
+ --accent:#d97706; --accent-soft:#fef3c7; --accent-text:#9a4a07; --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
+ --shadow-card:0 1px 2px rgb(18 32 26 / 0.04), 0 4px 16px rgb(18 32 26 / 0.05); --shadow-window:0 2px 4px rgb(18 32 26 / 0.04), 0 24px 64px -12px rgb(18 32 26 / 0.18);
+}
+.dark {
+ color-scheme:dark; --canvas:#0c1210; --surface:#121a17; --surface-2:#17211d; --line:#24332d; --field:#62786e;
+ --ink:#e8efeb; --ink-2:#b9c8c0; --muted:#8da198; --brand:#148062; --brand-hover:#117155; --brand-soft:#12261f; --brand-text:#6bcba9; --brand-ring:#3db48d;
+ --accent:#f59e0b; --accent-soft:#2a2008; --accent-text:#f59e0b; --good:#4ade80; --good-soft:#10281a; --bad:#f87171; --bad-soft:#2d1414;
+ --shadow-card:0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25); --shadow-window:0 2px 4px rgb(0 0 0 / 0.3), 0 24px 64px -12px rgb(0 0 0 / 0.6);
+}
+@theme inline {
+ --color-canvas:var(--canvas); --color-surface:var(--surface); --color-surface-2:var(--surface-2); --color-line:var(--line); --color-field:var(--field); --color-ink:var(--ink); --color-ink-2:var(--ink-2); --color-muted:var(--muted);
+ --color-brand:var(--brand); --color-brand-hover:var(--brand-hover); --color-brand-soft:var(--brand-soft); --color-brand-text:var(--brand-text); --color-brand-ring:var(--brand-ring); --color-accent:var(--accent); --color-accent-soft:var(--accent-soft); --color-accent-text:var(--accent-text); --color-good:var(--good); --color-good-soft:var(--good-soft); --color-bad:var(--bad); --color-bad-soft:var(--bad-soft);
+ --shadow-card:var(--shadow-card); --shadow-window:var(--shadow-window);
+ --font-sans:"Inter Variable",ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil","Noto Sans Telugu",sans-serif;
+}
+html{scroll-padding-top:5rem} @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:var(--brand-soft);color:var(--ink)} :focus-visible{outline:2px solid var(--brand-ring);outline-offset:3px;border-radius:6px}
+summary{list-style:none} summary::-webkit-details-marker{display:none}
