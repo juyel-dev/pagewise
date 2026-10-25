@@ -17,3 +17,10 @@
 - `parental_consents` has RLS and no policy on purpose: only the service role may touch it.
 - `my_role`, `is_staff`, `is_admin`, `write_audit` are SECURITY DEFINER and executable by signed-in users on purpose: RLS policies need them, they only reveal the caller's own role, and `write_audit` writes only when the caller is staff. Revisit by moving helpers to a non-exposed schema before public launch.
 
+
+## Dashboard settings required for sign-in (cannot be set from code)
+
+1. **Authentication → URL Configuration:** Site URL `https://pagewise-ten.vercel.app`; add Redirect URLs `https://pagewise-ten.vercel.app/**`, `http://localhost:3000/**` and the Vercel preview pattern if previews are used. Without this, sign-in links fall back to the wrong address.
+2. **Authentication → SMTP:** the built-in sender allows only a handful of emails per hour. Configure a custom SMTP provider (e.g. Resend) before inviting beta users.
+3. **Authentication → Providers:** Email is on by default. Google is added later (needs a Google Cloud OAuth client).
+4. Closed beta: consider turning off "Allow new users to sign up" after the invited users have signed in once, or use invite emails.

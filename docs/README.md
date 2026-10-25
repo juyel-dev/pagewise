@@ -61,3 +61,5 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-25 | Contrast audit and fixes | Added `scripts/check-contrast.py`. Fixed input-border, dark-hover and streak-chip contrast and the phone header overflow. Wrote the launch-edition landing spec (01b). |
 | 2026-10-25 | Master blueprint v1.0 | Feature, screen, data, system, security, content, QA specs and open decisions. Build paused until approved. |
 | 2026-10-25 | Blueprint approved + PDF viewer spec (doc 09) | Owner accepted all recommendations; own PDF.js viewer chosen; decisions 18–21 logged. |
+| 2026-10-25 | M2 app shell (first cut) | Email magic-link sign-in, onboarding, signed-in shell (Home, Library, Settings), proxy route protection, Supabase clients, Vercel env set. Google sign-in pending. |
+
