@@ -212,6 +212,7 @@ begin
 end $$;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 
 -- distinct open reporters -> report_count; hide at threshold (default 3)
 create function public.refresh_report_count() returns trigger
@@ -229,6 +230,7 @@ begin
 end $$;
 create trigger reports_refresh after insert or update or delete on public.reports
   for each row execute function public.refresh_report_count();
+revoke all on function public.refresh_report_count() from public, anon, authenticated;
 
 -- audit helper used by reviewer/admin server actions
 create function public.write_audit(p_action text, p_entity text, p_entity_id text, p_before jsonb, p_after jsonb)

@@ -25,3 +25,4 @@ Lightweight record of decisions, newest last. Each entry: what, why, and what wo
 | 19 | **Own PDF.js viewer with authorized NCERT PDFs** replaces official-link embed as the primary approach (D-15). Owner obtains permission; iframe/`Open NCERT page` kept as flagged fallback | Real page tracking, phone support, printed-page mapping | Permission scope narrower than hosting + display |
 | 20 | Layout: questions left, viewer right, hideable, swappable (D-16) | Owner request | Usability feedback |
 | 21 | Build order Viewer → Page detection → Page mapping → Question DB → Practice mode (D-17) | Each step depends on the previous | n/a |
+| 22 | New dedicated Supabase project `pagewise` (Mumbai, free tier, $0); other two projects paused | Isolation from other apps; free tier allows 2 active projects | Need more than free limits |
