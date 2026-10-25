@@ -16,6 +16,17 @@ Planning is the product. These docs are written **before** each build step so th
 - [02 Roadmap](product/02-roadmap.md)
 - [03 Content and legal guardrails](product/03-content-and-legal-guardrails.md)
 
+### Blueprint (master plan, draft v1: approve before building)
+- [00 Master blueprint](blueprint/00-master-blueprint.md)
+- [01 Feature spec](blueprint/01-feature-spec.md)
+- [02 Screens spec](blueprint/02-screens-spec.md)
+- [03 Data model](blueprint/03-data-model.md)
+- [04 System design](blueprint/04-system-design.md)
+- [05 Security and privacy](blueprint/05-security-privacy.md)
+- [06 Content and reviewers](blueprint/06-content-and-reviewers.md)
+- [07 Quality, analytics, launch](blueprint/07-quality-ops.md)
+- [08 Build plan and open questions](blueprint/08-build-plan-and-open-questions.md)
+
 ### Frontend
 - [01 Design foundations](frontend/01-design-foundations.md)
 - Screens
@@ -47,3 +58,4 @@ Planning is the product. These docs are written **before** each build step so th
 |---|---|---|
 | 2026-10-24 | Planning + Landing page | Vision, roadmap, design foundations, landing spec and build. Static, no backend. |
 | 2026-10-25 | Contrast audit and fixes | Added `scripts/check-contrast.py`. Fixed input-border, dark-hover and streak-chip contrast and the phone header overflow. Wrote the launch-edition landing spec (01b). |
+| 2026-10-25 | Master blueprint (draft v1) | Feature, screen, data, system, security, content, QA specs and open decisions. Build paused until approved. |
