@@ -37,6 +37,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, initialPage,
   const [tab, setTab] = useState<"read" | "practise">("practise");
   const [content, setContent] = useState<ChapterContent | null>(null);
   const [contentError, setContentError] = useState(false);
+  const [noContent, setNoContent] = useState(false);
   const [states, setStates] = useState<Record<string, QState>>({});
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set(bookmarkedIds));
   const [notice, setNotice] = useState("");
@@ -54,8 +55,12 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, initialPage,
     let cancelled = false;
     (async () => {
       try {
-        const cur = await (await fetch("/content/current.json")).json();
+        const manifest = await fetch("/content/current.json");
+        if (manifest.status === 404) { if (!cancelled) setNoContent(true); return; }
+        if (!manifest.ok) throw new Error("content");
+        const cur = await manifest.json();
         const res = await fetch(`/content/${cur.release}/en/${chapter.slug}.json`);
+        if (res.status === 404) { if (!cancelled) setNoContent(true); return; }
         if (!res.ok) throw new Error("content");
         const json = (await res.json()) as ChapterContent;
         if (!cancelled) setContent(json);
@@ -168,9 +173,6 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, initialPage,
 
   const practicePane = (
     <section aria-label="Practice" className="flex h-full min-h-0 flex-col overflow-auto bg-surface p-4">
-      {content?.dev && (
-        <p className="mb-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent-text">Development sample: these questions are unreviewed and for testing only.</p>
-      )}
       <div className="flex flex-wrap items-center gap-2">
         <button className={btnPrimary} onClick={practiseHere} disabled={!content || here === 0}>
           Practice this page · {here} {here === 1 ? "question" : "questions"}
@@ -183,6 +185,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, initialPage,
       </div>
       <p className="mt-2 text-xs text-muted" aria-live="polite">Reading: PDF page {page} · printed page {labelOf(page)}</p>
       {contentError && <p role="alert" className="mt-3 text-sm text-bad">Could not load the questions for this chapter.</p>}
+      {noContent && <p className="mt-4 text-sm text-ink-2">Questions for this chapter are still being reviewed. Every question is checked before it is published, so none are shown yet. You can read the chapter in the meantime.</p>}
       {content && here === 0 && !practicePage && <p className="mt-4 text-sm text-ink-2">No questions on this page yet. Keep reading, or jump to a page that has some.</p>}
 
       {practicePage && (
