@@ -1,0 +1,151 @@
+{
+ "chapter": "class11-bio-ch6",
+ "title": "Anatomy of Flowering Plants",
+ "release": "dev.1",
+ "dev": true,
+ "pages": {
+  "2": [
+   {
+    "id": "9e5e6b5e-d775-5f8f-ba49-13eabf0160c0",
+    "version_id": "445d91c1-268f-50e5-8004-3fab6ef5cdff",
+    "type": "mcq",
+    "difficulty": "easy",
+    "tags": [],
+    "payload": {
+     "stem": "In grasses, the guard cells of a stoma are:",
+     "options": [
+      "Bean-shaped",
+      "Dumb-bell shaped",
+      "Kidney-shaped with no chloroplasts",
+      "Rectangular and thin-walled"
+     ],
+     "answer": 1,
+     "explanation": "Grass guard cells are dumb-bell shaped, unlike the bean-shaped guard cells of most other plants.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 72"
+    }
+   },
+   {
+    "id": "b6a954b0-e3b3-5998-88d1-adc9e6991e4e",
+    "version_id": "c40e5612-b056-53d4-87b6-c48a41b206af",
+    "type": "mcq",
+    "difficulty": "medium",
+    "tags": [],
+    "payload": {
+     "stem": "Which wall of a guard cell is highly thickened?",
+     "options": [
+      "The outer wall, away from the pore",
+      "The wall shared with the subsidiary cell",
+      "The inner wall, towards the stomatal pore",
+      "Both walls equally"
+     ],
+     "answer": 2,
+     "explanation": "The inner walls facing the stomatal pore are thick, the outer walls are thin, which helps the pore open and close.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 72"
+    }
+   }
+  ],
+  "3": [
+   {
+    "id": "ad945e75-b5db-527c-866b-04fc33301c70",
+    "version_id": "e4a4517d-f3d4-554d-af12-f01b057acd56",
+    "type": "mcq",
+    "difficulty": "easy",
+    "tags": [],
+    "payload": {
+     "stem": "Vascular bundles that have cambium between xylem and phloem are called:",
+     "options": [
+      "Radial",
+      "Closed",
+      "Open",
+      "Scattered"
+     ],
+     "answer": 2,
+     "explanation": "Cambium lets the bundle form secondary xylem and phloem, so such bundles are open.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 73"
+    }
+   },
+   {
+    "id": "47d32a2e-37bc-5c9d-b856-71bd5b4b020a",
+    "version_id": "ff5a0fb8-c6fa-5bf1-a347-ec15cbfd8e7d",
+    "type": "mcq",
+    "difficulty": "medium",
+    "tags": [],
+    "payload": {
+     "stem": "A radial arrangement of xylem and phloem, on different radii, is found in:",
+     "options": [
+      "Dicot stems",
+      "Monocot stems",
+      "Roots",
+      "Leaves"
+     ],
+     "answer": 2,
+     "explanation": "In roots xylem and phloem alternate along different radii. Stems and leaves usually have conjoint bundles.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 73"
+    }
+   }
+  ],
+  "4": [
+   {
+    "id": "6eb41874-4609-502a-a936-e04238f89d93",
+    "version_id": "0c2628a9-10ae-5a05-bc21-c63b960120fa",
+    "type": "mcq",
+    "difficulty": "medium",
+    "tags": [],
+    "payload": {
+     "stem": "Casparian strips on endodermal cells are made of:",
+     "options": [
+      "Lignin",
+      "Cellulose",
+      "Suberin",
+      "Cutin"
+     ],
+     "answer": 2,
+     "explanation": "Water-impermeable, waxy suberin is deposited on the radial and tangential walls of endodermal cells.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 74"
+    }
+   }
+  ],
+  "6": [
+   {
+    "id": "7fbd2143-4d2d-5765-8266-e80daedb561a",
+    "version_id": "43ffd5cf-9953-575b-9b89-20d1859dc9d0",
+    "type": "mcq",
+    "difficulty": "easy",
+    "tags": [],
+    "payload": {
+     "stem": "A ring-like arrangement of vascular bundles is characteristic of:",
+     "options": [
+      "Monocot stem",
+      "Dicot stem",
+      "Monocot root",
+      "Isobilateral leaf"
+     ],
+     "answer": 1,
+     "explanation": "A ring of conjoint, open bundles is a hallmark of the dicot stem; monocot bundles are scattered.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 76"
+    }
+   }
+  ],
+  "7": [
+   {
+    "id": "249e0eb3-9a98-5787-91e9-6d78910954d1",
+    "version_id": "dfdec9e0-0091-5e5a-ae50-aee66957d18e",
+    "type": "mcq",
+    "difficulty": "medium",
+    "tags": [],
+    "payload": {
+     "stem": "When bulliform cells lose water and become flaccid, the grass leaf:",
+     "options": [
+      "Opens flat",
+      "Curls inwards",
+      "Sheds stomata",
+      "Turns the cuticle thicker"
+     ],
+     "answer": 1,
+     "explanation": "Flaccid bulliform cells make the leaf curl inwards, which reduces water loss.",
+     "source_note": "Class 11 Biology, Ch. 6, printed page 77"
+    }
+   }
+  ]
+ }
+}

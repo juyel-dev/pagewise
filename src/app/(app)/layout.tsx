@@ -5,7 +5,7 @@ import { UserMenu } from "@/components/app/user-menu";
 import { LogoMark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { brand } from "@/config/brand";
-import { AppGate } from "./gate";
+import { AppGate } from "@/components/app/gate";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (

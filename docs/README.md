@@ -62,4 +62,5 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-25 | Master blueprint v1.0 | Feature, screen, data, system, security, content, QA specs and open decisions. Build paused until approved. |
 | 2026-10-25 | Blueprint approved + PDF viewer spec (doc 09) | Owner accepted all recommendations; own PDF.js viewer chosen; decisions 18–21 logged. |
 | 2026-10-25 | M2 app shell (first cut) | Email magic-link sign-in, onboarding, signed-in shell (Home, Library, Settings), proxy route protection, Supabase clients, Vercel env set. Google sign-in pending. |
+| 2026-10-26 | Study workspace (M3 first real cut) | `/study/[chapter]`: own PDF.js viewer + page detection + printed labels, Practice this page (focus/list), attempts, bookmarks and reading progress saved, signed-URL PDF from private bucket, admin upload. Dev sample questions only. |
 

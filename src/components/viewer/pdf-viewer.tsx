@@ -12,7 +12,8 @@ export type PageSize = { w: number; h: number };
 export type PageMetric = { page: number; ms: number; scale: number };
 export type PdfViewerHandle = { scrollToPage: (page: number, smooth?: boolean) => void };
 export type PdfViewerProps = {
-  data: ArrayBuffer | null;
+  data?: ArrayBuffer | null;
+  url?: string | null;
   zoom: number; // 1 = fit width
   darkPages?: boolean;
   onPageChange: (page: number, source: "scroll" | "jump") => void;
@@ -59,8 +60,8 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
 
   // ---- load document -------------------------------------------------------------------------
   useEffect(() => {
-    const data = props.data;
-    if (!data) return;
+    const { data, url } = props;
+    if (!data && !url) return;
     let cancelled = false;
     setStatus("loading");
     (async () => {
@@ -68,7 +69,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
         const pdfjs = await import("pdfjs-dist");
         pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
         const task = pdfjs.getDocument({
-          data: new Uint8Array(data.slice(0)),
+          ...(data ? { data: new Uint8Array(data.slice(0)) } : { url: url as string, rangeChunkSize: 262144 }),
           cMapUrl: "/pdfjs/cmaps/", cMapPacked: true,
           standardFontDataUrl: "/pdfjs/standard_fonts/",
         });
@@ -93,7 +94,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.data]);
+  }, [props.data, props.url]);
 
   useEffect(() => () => { releaseAll(); void taskRef.current?.destroy(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

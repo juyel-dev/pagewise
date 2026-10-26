@@ -1,0 +1,16 @@
+{
+ "release": "dev.1",
+ "dev": true,
+ "note": "Unreviewed sample questions for development",
+ "chapters": [
+  {
+   "slug": "class11-bio-ch6",
+   "title": "Anatomy of Flowering Plants",
+   "pages": 8,
+   "questions": 7,
+   "files": {
+    "en": "/content/dev.1/en/class11-bio-ch6.json"
+   }
+  }
+ ]
+}

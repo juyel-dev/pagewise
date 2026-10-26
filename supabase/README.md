@@ -24,3 +24,11 @@
 2. **Authentication → SMTP:** the built-in sender allows only a handful of emails per hour. Configure a custom SMTP provider (e.g. Resend) before inviting beta users.
 3. **Authentication → Providers:** Email is on by default. Google is added later (needs a Google Cloud OAuth client).
 4. Closed beta: consider turning off "Allow new users to sign up" after the invited users have signed in once, or use invite emails.
+
+## Migrations applied to project `pagewise`
+
+- `0001_init` schema + RLS (2026-10-25)
+- `0002_seed_dev_chapter` Class 11 Biology Ch.6 as a **draft** chapter (staff-visible) with 7 unreviewed sample questions; static copy in `public/content/dev.1/`
+- `0003_chapter_pdfs_bucket` private `chapter-pdfs` bucket: staff read all, students read live chapters only, only admins write
+
+Promote an admin from the SQL editor: `update public.profiles set role = 'admin' where id = '<user uuid>';`
