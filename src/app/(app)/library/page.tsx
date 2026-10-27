@@ -4,13 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Library" };
 
-type Row = { id: string; slug: string; status: string; number: number; title: string; page_count: number | null; books: { class: string; subject: string } | { class: string; subject: string }[] | null };
+type Row = { id: string; slug: string; status: string; number: number; title: string; page_count: number | null; unit_number: number | null; unit_title: string | null; questions: { count: number }[]; books: { class: string; subject: string } | { class: string; subject: string }[] | null };
 
 export default async function LibraryPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("chapters")
-    .select("id, slug, status, number, title, page_count, books(class, subject)")
+    .select("id, slug, status, number, title, page_count, unit_number, unit_title, books(class, subject), questions(count)")
+    .eq("questions.status", "published")
     .order("number");
   const rows = ((data ?? []) as Row[]).map((r) => ({ ...r, book: Array.isArray(r.books) ? r.books[0] : r.books }));
   const groups = (["11", "12"] as const).map((c) => ({ cls: c, items: rows.filter((r) => r.book?.class === c) }));
@@ -37,7 +38,7 @@ export default async function LibraryPage() {
                 <Link href={`/study/${c.slug}`} className="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:bg-surface-2">
                   <p className="text-xs text-muted">Chapter {c.number}{c.status === "draft" ? " · Draft (staff only)" : ""}</p>
                   <p className="mt-1 font-medium text-ink">{c.title}</p>
-                  {c.page_count ? <p className="mt-2 text-xs text-muted">{c.page_count} pages</p> : null}
+                  <p className="mt-2 text-xs text-muted">{c.questions?.[0]?.count ? `${c.questions[0].count} questions` : "Questions coming soon"}{c.page_count ? ` · ${c.page_count} pages` : ""}</p>
                 </Link>
               </li>
             ))}

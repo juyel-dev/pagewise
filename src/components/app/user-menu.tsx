@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
 
 export async function UserMenu() {
@@ -12,6 +13,10 @@ export async function UserMenu() {
       </summary>
       <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-line bg-surface p-2 shadow-lg">
         <p className="truncate px-2 py-1 text-xs text-muted">{s.user.email}</p>
+        {(s.profile?.role === "admin" || s.profile?.role === "reviewer") && (
+          <Link href="/review" className="block rounded-lg px-2 py-2 text-sm text-ink hover:bg-surface-2">Review questions</Link>
+        )}
+        {s.profile?.role === "admin" && <Link href="/admin/import" className="block rounded-lg px-2 py-2 text-sm text-ink hover:bg-surface-2">Import questions</Link>}
         <form action="/auth/signout" method="post">
           <button type="submit" className="w-full rounded-lg px-2 py-2 text-left text-sm text-ink hover:bg-surface-2">Sign out</button>
         </form>

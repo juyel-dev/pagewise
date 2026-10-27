@@ -32,3 +32,7 @@
 - `0003_chapter_pdfs_bucket` private `chapter-pdfs` bucket: staff read all, students read live chapters only, only admins write
 
 Promote an admin from the SQL editor: `update public.profiles set role = 'admin' where id = '<user uuid>';`
+- `0004_remove_dev_seed_questions` removed the unreviewed sample questions
+- `0005_question_bank_format` 5 question types from the owner's question-bank format, `external_id`, `topic`, chapter `pdf_file`/unit fields, student read policies for published questions of live chapters
+
+RLS was verified on 2026-10-26 by running the real policies as an admin and as a student inside a rolled-back transaction: admin import/publish allowed; student sees nothing while a chapter is draft, sees published questions once live, cannot edit questions, cannot self-promote, cannot read or write another user's attempts, cannot import; report counter works.

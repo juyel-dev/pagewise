@@ -11,9 +11,9 @@ async function authed() {
 }
 
 export async function recordAttempt(i: {
-  questionId: string; versionId: string; chosen: number; isCorrect: boolean; timeMs: number; attemptNo: number; release: string; source: string;
+  questionId: string; versionId: string; chosen: number[]; isCorrect: boolean; timeMs: number; attemptNo: number; release: string; source: string;
 }): Promise<Result> {
-  if (!UUID.test(i.questionId) || !UUID.test(i.versionId) || !Number.isInteger(i.chosen) || i.chosen < 0 || i.chosen > 9) return { ok: false };
+  if (!UUID.test(i.questionId) || !UUID.test(i.versionId) || !Array.isArray(i.chosen) || i.chosen.length < 1 || i.chosen.length > 8 || !i.chosen.every((n) => Number.isInteger(n) && n >= 0 && n <= 9)) return { ok: false };
   if (!Number.isInteger(i.attemptNo) || i.attemptNo < 1 || i.attemptNo > 50) return { ok: false };
   const { supabase, user } = await authed();
   if (!user) return { ok: false };

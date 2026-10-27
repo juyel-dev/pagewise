@@ -26,3 +26,7 @@ Lightweight record of decisions, newest last. Each entry: what, why, and what wo
 | 20 | Layout: questions left, viewer right, hideable, swappable (D-16) | Owner request | Usability feedback |
 | 21 | Build order Viewer → Page detection → Page mapping → Question DB → Practice mode (D-17) | Each step depends on the previous | n/a |
 | 22 | New dedicated Supabase project `pagewise` (Mumbai, free tier, $0); other two projects paused | Isolation from other apps; free tier allows 2 active projects | Need more than free limits |
+| 23 | Questions are written by the owner in the page-file format of `juyel-dev/neet-biology-question-bank` (5 types incl. multiple-correct, match, assertion-reason; `source_text` excerpt per question). PageWise imports them from the admin screen | Owner decision 2026-10-26: owner writes questions, Claude builds the app | n/a |
+| 24 | Students read published questions **from the database** (RLS), not static JSON. Supersedes blueprint 03 §4 / 04 §3 for now | One admin publishes; simpler and always consistent. Revisit with a CDN export if load requires it | Traffic or cost data |
+| 25 | Review = publish gate inside the app (`/review`): import → In review → Publish. Nothing unpublished is ever shown to students | Owner reviews, per guardrails | n/a |
+
