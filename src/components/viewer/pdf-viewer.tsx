@@ -123,6 +123,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
     canvas.width = Math.floor(rv.width); canvas.height = Math.floor(rv.height);
     canvas.style.width = `${css.width}px`; canvas.style.height = `${css.height}px`;
     const textDiv = document.createElement("div");
+    textDiv.className = "textLayer"; // PDF.js does not add this class itself; our CSS and text selection depend on it
     textDiv.style.width = `${css.width}px`; textDiv.style.height = `${css.height}px`;
     textDiv.style.setProperty("--scale-factor", String(s)); textDiv.style.setProperty("--total-scale-factor", String(s));
     const entry: Rendered = { scale: s, status: "rendering", canvas, textDiv, task: null, text: null };

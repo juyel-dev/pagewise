@@ -36,3 +36,17 @@ Browser-side S-1a/S-1b (render performance, detection accuracy) once the viewer 
 ## Status
 
 The temporary `/lab/viewer` page was removed on 2026-10-26. The viewer, page detection and page mapping now live only in the production study workspace (`src/components/viewer`, `src/lib/pdf`, `src/features/study`). Render performance of the heavy pages 3 and 6 is checked in a real browser run (see build log).
+
+## Real-browser results (2026-10-26, headless Chromium 153, 1 CPU, no GPU)
+
+Tested the production viewer against this chapter with scripted scrolling.
+
+| Check | Result |
+|---|---|
+| Page detection (8 scripted scroll stops) | 8/8 correct; jump to page 7 correct; one emit per change |
+| Text layer | **Bug found and fixed:** the layer container lacked the `textLayer` class, so selectable text was unstyled and would have shown as doubled text over the page. Now 38–135 text spans per page, transparent over the canvas |
+| Render time per page (software canvas, single shared core) | 0.1–2.3 s; the heavy figure page 73 about 2 s. Not representative of real devices; re-measure on a phone |
+| JS heap | about 10 MB |
+| Console / viewer errors | none |
+
+**Open issue:** on page 73, Figure 6.2(b) shows thin horizontal streaks in PDF.js under headless Chromium. Poppler renders the same page cleanly, so the file is fine. Tried and ruled out: 2x supersampling, integer render scales, `isOffscreenCanvasSupported=false`, `isImageDecoderSupported=false`, print intent, `useWasm=false`. Next step: owner checks pages 73 and 76 on a real desktop and phone. If the streaks appear there too, the fix is an upload-time step that flattens figure-heavy pages (hundreds of tiny image strips) into single images.
