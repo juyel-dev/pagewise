@@ -2,7 +2,6 @@ import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { brand } from "@/config/brand";
-import { WorkspacePreview } from "./workspace-preview";
 
 const proof = ["Biology Class 11 & 12 first", "A source page for every question", "English now · Hindi & more next"];
 
@@ -21,7 +20,6 @@ export function Hero() {
           </div>
           <ul className="mt-8 flex flex-col items-center justify-center gap-x-6 gap-y-2 text-sm text-muted sm:flex-row sm:flex-wrap">{proof.map((p) => <li key={p} className="flex items-center gap-2"><span className="size-1 rounded-full bg-brand-ring" aria-hidden />{p}</li>)}</ul>
         </div>
-        <div className="mt-16 sm:mt-20"><WorkspacePreview /></div>
       </Container>
     </section>
   );

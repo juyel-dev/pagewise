@@ -11,9 +11,12 @@ A web app for NEET aspirants that puts an **NCERT page** and **exam-style practi
 | Step | What | State |
 |---|---|---|
 | 1 | Landing page (this repo) | Done |
-| 2 | App shell + auth | Next |
-| 3 | Study workspace (split view) | Planned |
-| 4 | Content pipeline + reviewer console | Planned |
+| 2 | App shell + auth (Google + magic link) | Done |
+| 3 | Study workspace (split view, own PDF viewer) | Done — first cut |
+| 4 | Content pipeline + reviewer console (in-app) | Done — first cut |
+| 5 | Guest mode + Google-only auth | In progress |
+| 6 | Full-MVP build (remaining screens, separate admin app) | Next |
+| 7 | Polish pass (UX, copy, performance, errors) | After step 6 |
 
 See [`docs/README.md`](docs/README.md) for the full plan and build log.
 

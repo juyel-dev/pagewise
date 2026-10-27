@@ -6,7 +6,7 @@ Planning is the product. These docs are written **before** each build step so th
 
 1. **Frontend first**, screen by screen, in small steps. Each screen gets a spec in `docs/frontend/screens/` *before* it is built.
 2. **Design system before screens.** Tokens and components are defined once (`docs/frontend/01-design-foundations.md`) and reused.
-3. **Ship small, review, adjust.** The owner reviews the live app after every step; colours, copy and layout are expected to change.
+3. **Full build, then polish.** *(Owner directive 2026-10-27, decision #26.)* The remaining MVP screens are built end-to-end first; the owner reviews the complete app, then a polish pass tunes copy, layout and feel.
 4. **Ideas are never lost.** Anything not needed yet goes into the roadmap with a tier (Now / Next / Later), not into the code.
 
 ## Index
@@ -64,4 +64,5 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-25 | M2 app shell (first cut) | Email magic-link sign-in, onboarding, signed-in shell (Home, Library, Settings), proxy route protection, Supabase clients, Vercel env set. Google sign-in pending. |
 | 2026-10-26 | Study workspace (M3 first real cut) | `/study/[chapter]`: own PDF.js viewer + page detection + printed labels, Practice this page (focus/list), attempts, bookmarks and reading progress saved, signed-URL PDF from private bucket, admin upload. Dev sample questions only. |
 | 2026-10-26 | Question import + review + DB-backed practice | Admin import of the owner's page files with validation, `/review` publish workflow, five question types in the workspace, library counts. All 9 files (171 questions) of the owner's bank validate. |
+| 2026-10-27 | Owner replan (decisions 26–32) | Questions source moved to `juyel-dev/neet-pcb-question-bank`; Google-only auth; guest mode (per page first 2 questions, saves need sign-in, "Continue as guest" entry, no guest onboarding); separate admin app next; landing mock removed; NCERT permission attested (release gate open). NCERT permissions recorded in `docs/legal/ncert-permission.md`. |
 

@@ -1,22 +1,46 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui/button";
+import { brand } from "@/config/brand";
 import { getSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Home" };
 
 export default async function HomePage() {
   const s = await getSession();
-  const first = (s?.profile?.display_name || "there").split(" ")[0];
+
+  if (!s) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink">Welcome to {brand.name}</h1>
+          <p className="mt-1 max-w-prose text-sm text-ink-2">Read the NCERT page and practise exam-style questions from that exact page. You are browsing as a guest — nothing is saved yet.</p>
+        </div>
+        <section aria-label="Get started" className="rounded-2xl border border-line bg-surface p-6">
+          <h2 className="text-lg font-semibold text-ink">Two ways to start</h2>
+          <ul className="mt-2 max-w-prose space-y-1.5 text-sm text-ink-2">
+            <li>Keep exploring as a guest: read every page, try the first 2 questions on each.</li>
+            <li>Sign in with Google when you want bookmarks, reading progress and attempts saved.</li>
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <ButtonLink href="/sign-in?next=%2Fhome">Sign in with Google</ButtonLink>
+            <ButtonLink href="/library" variant="secondary">Browse the library</ButtonLink>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const first = (s.profile?.display_name || "there").split(" ")[0];
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-ink">Hi {first}</h1>
-        <p className="mt-1 text-sm text-ink-2">Daily goal: {s?.profile?.daily_goal ?? 20} questions · NEET {s?.profile?.neet_year ?? ""}</p>
+        <p className="mt-1 text-sm text-ink-2">Daily goal: {s.profile?.daily_goal ?? 20} questions · NEET {s.profile?.neet_year ?? ""}</p>
       </div>
       <section aria-labelledby="resume" className="rounded-2xl border border-line bg-surface p-6">
         <h2 id="resume" className="text-lg font-semibold text-ink">Pick up where you left off</h2>
         <p className="mt-2 max-w-prose text-sm text-ink-2">
-          You have not started a chapter yet. The first Biology chapters are being prepared and reviewed; they will appear in the library as soon as they are ready.
+          You have not started a chapter yet. The first chapters appear in the library as soon as they are reviewed and published.
         </p>
         <ButtonLink href="/library" className="mt-4">Browse the library</ButtonLink>
       </section>

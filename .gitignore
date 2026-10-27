@@ -45,3 +45,7 @@ next-env.d.ts
 /private-content/
 *.pdf
 /public/pdfjs/
+
+# AI/tooling artifacts (per machine)
+.agents/
+skills-lock.json

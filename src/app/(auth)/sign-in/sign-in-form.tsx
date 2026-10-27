@@ -1,57 +1,34 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { safeNext } from "@/lib/auth/safe-next";
 import { flags } from "@/lib/flags";
 import { createClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
-type Status = "idle" | "sending" | "sent" | "error";
-
+/** Google-only sign-in (decision 27) with a guest path (decision 28). */
 export function SignInForm() {
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState(params.get("error") === "link" ? "That sign-in link did not work or has expired. Please request a new one." : "");
+  const guestHref = next || "/library";
+  const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [message, setMessage] = useState(params.get("error") ? "That sign-in did not complete. Try again, or continue as a guest." : "");
 
   async function onGoogle() {
-    if (!hasSupabaseEnv) { setStatus("error"); setMessage("Sign-in is not configured yet."); return; }
+    if (!hasSupabaseEnv || !flags.googleAuth) { setStatus("error"); setMessage("Google sign-in is not enabled yet. You can continue as a guest for now."); return; }
     setStatus("sending"); setMessage("");
     const { error } = await createClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
     });
-    if (error) { setStatus("error"); setMessage("Google sign-in did not start. Please try again or use email."); }
-  }
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!hasSupabaseEnv) { setStatus("error"); setMessage("Sign-in is not configured yet."); return; }
-    setStatus("sending"); setMessage("");
-    const { error } = await createClient().auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
-    });
-    if (error) { setStatus("error"); setMessage(error.status === 429 ? "Too many requests. Please wait a few minutes and try again." : "We could not send the link. Check the email address and try again."); return; }
-    setStatus("sent");
-  }
-
-  if (status === "sent") {
-    return (
-      <div role="status" className="rounded-2xl border border-line bg-surface p-6">
-        <h2 className="text-lg font-semibold text-ink">Check your email</h2>
-        <p className="mt-2 text-sm text-ink-2">We sent a sign-in link to <strong>{email}</strong>. Open it on this device and browser.</p>
-        <button className="mt-4 text-sm font-medium text-brand-text underline" onClick={() => setStatus("idle")}>Use a different email</button>
-      </div>
-    );
+    if (error) { setStatus("error"); setMessage("Google sign-in did not start. Please try again, or continue as a guest."); }
   }
 
   return (
-    <div className="space-y-5">
-    {flags.googleAuth && (
-      <>
+    <div className="space-y-3">
+      {flags.googleAuth ? (
         <button type="button" onClick={onGoogle} disabled={status === "sending"}
           className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-line bg-surface px-6 text-base font-medium text-ink shadow-sm transition-colors hover:bg-surface-2 disabled:opacity-50">
           <svg viewBox="0 0 48 48" className="size-5" aria-hidden focusable="false">
@@ -62,21 +39,16 @@ export function SignInForm() {
           </svg>
           Continue with Google
         </button>
-        <div className="flex items-center gap-3 text-xs text-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
-      </>
-    )}
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-ink">Email address</label>
-        <input id="email" type="email" required autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 h-11 w-full rounded-xl border border-line bg-field px-3 text-ink placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-ring"
-          placeholder="you@example.com" aria-describedby={message ? "signin-msg" : undefined} />
-      </div>
-      {message && <p id="signin-msg" role="alert" className="text-sm text-bad">{message}</p>}
-      <Button type="submit" size="lg" className="w-full" disabled={status === "sending" || !email.includes("@")}>
-        {status === "sending" ? "Sending…" : "Email me a sign-in link"}
-      </Button>
-    </form>
+      ) : (
+        <p className="rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-2">Google sign-in is being set up. For now, continue as a guest.</p>
+      )}
+      <div className="flex items-center gap-3 text-xs text-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
+      <Link href={guestHref}
+        className={cn("flex h-12 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-base font-medium text-ink border-line shadow-sm transition-colors hover:bg-surface-2")}>
+        Continue as guest
+      </Link>
+      <p className="text-xs leading-5 text-muted">Guests can read every chapter page and try the first 2 questions on a page. Sign in to save bookmarks, progress and attempts.</p>
+      {message && <p role="alert" className="text-sm text-bad">{message}</p>}
     </div>
   );
 }

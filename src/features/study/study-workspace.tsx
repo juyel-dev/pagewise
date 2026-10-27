@@ -17,11 +17,12 @@ const nowMs = () => Date.now();
 
 type Props = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
-  questionsByPage: Record<string, StudyQuestion[]>;
+  questionsByPage: Record<string, StudyQuestion[]>; pageTotal?: Record<string, number>;
   initialPage: number; seenPages: number[]; bookmarkedIds: string[];
+  guest?: boolean;
 };
 
-export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, questionsByPage, initialPage, seenPages, bookmarkedIds }: Props) {
+export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, questionsByPage, pageTotal, initialPage, seenPages, bookmarkedIds, guest = false }: Props) {
   const router = useRouter();
   const viewer = useRef<PdfViewerHandle>(null);
   const [localData, setLocalData] = useState<ArrayBuffer | null>(null);
@@ -48,12 +49,14 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const readyRef = useRef(false);
 
   const labelOf = useCallback((p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p), [pageMap]);
+  const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}`)}`;
   const total = numPages || chapter.pageCount;
   const questionsFor = useCallback((p: number | null): StudyQuestion[] => (p ? questionsByPage[String(p)] ?? [] : []), [questionsByPage]);
   const hasAny = Object.values(questionsByPage).some((l) => l.length > 0);
   const here = questionsFor(page).length;
   const activePage = review ? page : practicePage;
   const qs = questionsFor(activePage);
+  const lockedHere = guest && activePage ? (pageTotal?.[String(activePage)] ?? 0) - qs.length : 0;
   const nextWithQ = useMemo(
     () => Object.keys(questionsByPage).map(Number).filter((p) => p > page && questionsByPage[String(p)].length > 0).sort((a, b) => a - b)[0],
     [questionsByPage, page],
@@ -67,14 +70,14 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
 
   useEffect(() => {
-    if (!readyRef.current || review) return;
+    if (!readyRef.current || review || guest) return; // guests: progress is not persisted (decision 28)
     const url = new URL(window.location.href);
     url.searchParams.set("p", String(page));
     window.history.replaceState(null, "", url);
     seen.current.add(page);
     const t = setTimeout(() => { void saveProgress({ chapterId: chapter.id, lastPage: page, pagesSeen: [...seen.current] }); }, 5000);
     return () => clearTimeout(t);
-  }, [page, chapter.id, review]);
+  }, [page, chapter.id, review, guest]);
 
   useEffect(() => {
     if (!follow || review) return;
@@ -111,6 +114,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     const st = states[q.id];
     if (!st || st.chosen.length === 0) return;
     setStates((s) => ({ ...s, [q.id]: { ...st, checked: true } }));
+    if (guest) return; // guests: attempts are not persisted (decision 28)
     void recordAttempt({
       questionId: q.id, versionId: q.version_id, chosen: st.chosen, isCorrect: isCorrect(st.chosen, q.payload.correct),
       timeMs: nowMs() - (started.current[q.id] ?? nowMs()), attemptNo: st.attemptNo, release: "db", source: "workspace",
@@ -121,6 +125,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     setStates((s) => ({ ...s, [q.id]: { chosen: [], checked: false, attemptNo: (s[q.id]?.attemptNo ?? 1) + 1 } }));
   }
   function bookmark(q: StudyQuestion) {
+    if (guest) { router.push(signInHref); return; } // sign in to save bookmarks (decision 28)
     const on = !bookmarks.has(q.id);
     setBookmarks((b) => { const n = new Set(b); if (on) n.add(q.id); else n.delete(q.id); return n; });
     void toggleBookmark({ questionId: q.id, on }).then((r) => {
@@ -190,6 +195,18 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
         </div>
       )}
       <p className="mt-2 text-xs text-muted" aria-live="polite">Reading: PDF page {page} · printed page {labelOf(page)}</p>
+      {guest && !review && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-canvas px-3 py-2.5">
+          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2"><span className="font-medium text-ink">Guest mode.</span> You can try the first 2 questions on each page. Sign in to keep your progress, bookmarks and attempts.</p>
+          <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-hover">Sign in</Link>
+        </div>
+      )}
+      {lockedHere > 0 && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-line bg-surface-2 px-3 py-2.5">
+          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2">{lockedHere} more question{lockedHere === 1 ? "" : "s"} on this page — sign in to see {lockedHere === 1 ? "it" : "them"}.</p>
+          <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-hover">Sign in</Link>
+        </div>
+      )}
       {!hasAny && !review && <p className="mt-4 text-sm text-ink-2">Questions for this chapter are still being reviewed. Every question is checked before it is published, so none are shown yet. You can read the chapter in the meantime.</p>}
       {!hasAny && review && <p className="mt-4 text-sm text-ink-2">No questions in this chapter yet. Import them from Admin → Import questions.</p>}
       {review && hasAny && qs.length === 0 && <p className="mt-4 text-sm text-ink-2">No questions on this page.{nextWithQ ? " Use “Go to next page with questions” in the page controls." : ""}</p>}

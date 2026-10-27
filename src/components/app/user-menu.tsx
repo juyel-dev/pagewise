@@ -3,7 +3,13 @@ import { getSession } from "@/lib/auth/session";
 
 export async function UserMenu() {
   const s = await getSession();
-  if (!s) return null;
+  if (!s) {
+    return (
+      <Link href="/sign-in" className="flex h-9 items-center rounded-full bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-hover">
+        Sign in
+      </Link>
+    );
+  }
   const name = s.profile?.display_name || s.user.email;
   return (
     <details className="relative">

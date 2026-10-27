@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { redirectWithCookies, updateSession } from "./lib/supabase/proxy";
 
-const PROTECTED = /^\/(home|library|progress|bookmarks|settings|onboarding|study|review|admin)(\/|$)/;
+const PROTECTED = /^\/(onboarding|progress|bookmarks|settings|review|admin)(\/|$)/;
 
 export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);

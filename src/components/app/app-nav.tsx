@@ -5,11 +5,12 @@ import { cn } from "@/lib/cn";
 
 const links = [{ href: "/home", label: "Home" }, { href: "/library", label: "Library" }, { href: "/settings", label: "Settings" }];
 
-export function AppNav() {
+export function AppNav({ guest = false }: { guest?: boolean }) {
   const path = usePathname();
+  const shown = guest ? links.filter((l) => l.href !== "/settings") : links;
   return (
     <nav aria-label="Main" className="flex items-center gap-1">
-      {links.map((l) => {
+      {shown.map((l) => {
         const active = path === l.href || path.startsWith(l.href + "/");
         return (
           <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}
