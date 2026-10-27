@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Container } from "@/components/ui/container";
 import { brand, navLinks } from "@/config/brand";
+import { flags } from "@/lib/flags";
 
 export function SiteFooter() {
   return (
@@ -15,7 +16,7 @@ export function SiteFooter() {
           <nav aria-label="Footer">
             <ul className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm">
               {navLinks.map((l) => <li key={l.href}><a href={l.href} className="text-ink-2 hover:text-ink hover:underline">{l.label}</a></li>)}
-              <li><a href="#waitlist" className="text-ink-2 hover:text-ink hover:underline">Waitlist</a></li>
+              <li><a href={flags.appOpen ? "/home" : "#waitlist"} className="text-ink-2 hover:text-ink hover:underline">{flags.appOpen ? "Open the app" : "Waitlist"}</a></li>
             </ul>
           </nav>
         </div>

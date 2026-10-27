@@ -3,6 +3,7 @@
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { navLinks } from "@/config/brand";
+import { flags } from "@/lib/flags";
 import { ButtonLink } from "@/components/ui/button";
 
 /** Mobile menu: disclosure pattern, closes on link tap and on Escape. */
@@ -23,7 +24,7 @@ export function MobileNav() {
         <nav aria-label="Mobile"><ul className="flex flex-col">
           {navLinks.map((l) => <li key={l.href}><a href={l.href} onClick={() => setOpen(false)} className="block rounded-lg px-2 py-3 text-base font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">{l.label}</a></li>)}
         </ul>
-        <ButtonLink href="#waitlist" size="lg" className="mt-3 w-full" onClick={() => setOpen(false)}>Join the waitlist</ButtonLink>
+        <ButtonLink href={flags.appOpen ? "/home" : "#waitlist"} size="lg" className="mt-3 w-full" onClick={() => setOpen(false)}>{flags.appOpen ? "Open the app" : "Join the waitlist"}</ButtonLink>
         </nav>
       </div>}
     </div>

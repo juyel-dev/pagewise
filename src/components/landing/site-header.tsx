@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { navLinks } from "@/config/brand";
+import { flags } from "@/lib/flags";
 import { MobileNav } from "./mobile-nav";
 
 export function SiteHeader() {
@@ -19,7 +20,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {/* Wrapper (not a `hidden` class on the button): Button's base `inline-flex` would win the conflict. */}
-          <div className="hidden sm:block"><ButtonLink href="#waitlist">Join the waitlist</ButtonLink></div>
+          <div className="hidden sm:block">{flags.appOpen ? <ButtonLink href="/home">Open the app</ButtonLink> : <ButtonLink href="#waitlist">Join the waitlist</ButtonLink>}</div>
           <MobileNav />
         </div>
       </Container>
