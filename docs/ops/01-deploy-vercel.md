@@ -10,6 +10,8 @@
    - `NEXT_PUBLIC_SITE_URL` (your final domain, once you have one)
 5. Click **Deploy**. You get a URL like `https://<project>.vercel.app`: that is the live app.
 
+> **Production URL timeline:** `pagewise-ten.vercel.app` (2026-10-25) → **`neet-aspirants.vercel.app`** (renamed 2026-10-27; the old alias was removed and returns 404). Use the new domain in docs and tests. `NEXT_PUBLIC_SITE_URL` should be set to the new URL; on Vercel metadata also falls back to the build domain automatically.
+
 Every push to `main` deploys to production; every pull request gets its own preview URL.
 
 ## Custom domain
