@@ -27,6 +27,8 @@ Planning is the product. These docs are written **before** each build step so th
 - [07 Quality, analytics, launch](blueprint/07-quality-ops.md)
 - [08 Build plan and decisions](blueprint/08-build-plan-and-open-questions.md)
 - [09 Own PDF viewer, page detection, page mapping](blueprint/09-pdf-viewer-spec.md)
+- [10 Architecture spec v1.0 (LOCKED)](blueprint/10-architecture-spec-v1.md)
+- [11 Spec → codebase mapping + phased kickoff](blueprint/11-architecture-mapping.md)
 
 ### Frontend
 - [01 Design foundations](frontend/01-design-foundations.md)
@@ -65,4 +67,6 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-26 | Study workspace (M3 first real cut) | `/study/[chapter]`: own PDF.js viewer + page detection + printed labels, Practice this page (focus/list), attempts, bookmarks and reading progress saved, signed-URL PDF from private bucket, admin upload. Dev sample questions only. |
 | 2026-10-26 | Question import + review + DB-backed practice | Admin import of the owner's page files with validation, `/review` publish workflow, five question types in the workspace, library counts. All 9 files (171 questions) of the owner's bank validate. |
 | 2026-10-27 | Owner replan (decisions 26–32) | Questions source moved to `juyel-dev/neet-pcb-question-bank`; Google-only auth; guest mode (per page first 2 questions, saves need sign-in, "Continue as guest" entry, no guest onboarding); separate admin app next; landing mock removed; NCERT permission attested (release gate open). NCERT permissions recorded in `docs/legal/ncert-permission.md`. |
+| 2026-10-28 | Landing app-open edition live | Mock removed earlier; `NEXT_PUBLIC_APP_OPEN=true` switches landing to Google/guest CTAs; production domain renamed to `neet-aspirants.vercel.app`. |
+| 2026-10-28 | **Architecture spec v1.0 LOCKED** (decision 33) | Owner's locked spec saved as `blueprint/10`; codebase mapping + phased kickoff as `blueprint/11`. No implementation started (spec §14) — awaiting owner approval of the phase order. |
 
