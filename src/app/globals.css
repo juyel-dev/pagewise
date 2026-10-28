@@ -1,15 +1,15 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 :root {
- color-scheme:light; --canvas:#fafaf7; --surface:#ffffff; --surface-2:#f2f4ee; --line:#e2e6de; --field:#78877f;
- --ink:#12201a; --ink-2:#3b4a43; --muted:#62736a;
- --brand:#148062; --brand-hover:#116750; --brand-soft:#e6f5ee; --brand-text:#116750; --brand-ring:#1f9c77;
+ color-scheme:light; --canvas:#f8fafc; --surface:#ffffff; --surface-2:#f1f5f9; --line:#e2e8f0; --field:#eef2f7;
+ --ink:#0f172a; --ink-2:#334155; --muted:#5d6b80;
+ --brand:#2563eb; --brand-hover:#1d4ed8; --brand-soft:#e8effd; --brand-text:#1d4ed8; --brand-ring:#3b82f6;
  --accent:#d97706; --accent-soft:#fef3c7; --accent-text:#9a4a07; --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
- --shadow-card:0 1px 2px rgb(18 32 26 / 0.04), 0 4px 16px rgb(18 32 26 / 0.05); --shadow-window:0 2px 4px rgb(18 32 26 / 0.04), 0 24px 64px -12px rgb(18 32 26 / 0.18);
+ --shadow-card:0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05); --shadow-window:0 2px 4px rgb(15 23 42 / 0.04), 0 24px 64px -12px rgb(15 23 42 / 0.18);
 }
 .dark {
- color-scheme:dark; --canvas:#0c1210; --surface:#121a17; --surface-2:#17211d; --line:#24332d; --field:#62786e;
- --ink:#e8efeb; --ink-2:#b9c8c0; --muted:#8da198; --brand:#148062; --brand-hover:#117155; --brand-soft:#12261f; --brand-text:#6bcba9; --brand-ring:#3db48d;
+ color-scheme:dark; --canvas:#0b1120; --surface:#101a2c; --surface-2:#16233b; --line:#24344d; --field:#1b2942;
+ --ink:#e8eef9; --ink-2:#b7c4d6; --muted:#8595a9; --brand:#2563eb; --brand-hover:#1d4ed8; --brand-soft:#14233f; --brand-text:#93c5fd; --brand-ring:#60a5fa;
  --accent:#f59e0b; --accent-soft:#2a2008; --accent-text:#f59e0b; --good:#4ade80; --good-soft:#10281a; --bad:#f87171; --bad-soft:#2d1414;
  --shadow-card:0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25); --shadow-window:0 2px 4px rgb(0 0 0 / 0.3), 0 24px 64px -12px rgb(0 0 0 / 0.6);
 }
