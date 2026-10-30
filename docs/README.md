@@ -29,6 +29,8 @@ Planning is the product. These docs are written **before** each build step so th
 - [09 Own PDF viewer, page detection, page mapping](blueprint/09-pdf-viewer-spec.md)
 - [10 Architecture spec v1.0 (LOCKED)](blueprint/10-architecture-spec-v1.md)
 - [11 Spec → codebase mapping + phased kickoff](blueprint/11-architecture-mapping.md)
+- [12 Study-section spec v1.0 (Planning)](blueprint/12-study-section-spec-v1.md)
+- [13 Study spec → codebase audit & mapping](blueprint/13-study-section-mapping.md)
 
 ### Frontend
 - [01 Design foundations](frontend/01-design-foundations.md)
@@ -74,4 +76,5 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-28 | **First chapter PDF uploaded** | `The Living World` (class11-bio-ch01): NCERT Class 11 Biology Ch-1 PDF (2.26 MB) uploaded to `chapter-pdfs/class11-bio-ch01.pdf` via service-role REST (owner-provided key; stored in local credentials.env, never in repo). Chapter row: pdf_path + sha256 `e6b49c5e…77fd` + page_count 9. Status stays `draft`; page_map 0 rows, questions 0. |
 | 2026-10-28 | **Ch-01 content imported from questions repo; chapter live** | 9 page files from `juyel-dev/neet-pcb-question-bank` validated with a faithful port of `validatePageFile`/`importPageFile` → 171 questions (`in_review`, v1 payloads, source_note `kebo101.pdf, PDF page N`), 9 page_map rows (2 unit_intro + 7 content), 9 audit_log rows (actor: Juyel-dev). Chapter set `live`. Guest end-to-end verified via anon REST: chapter visible, PDF signed URL serves exact bytes (2,263,862 B, %PDF-1.6), in_review questions hidden. |
 | 2026-10-28 | **All 171 Ch-01 questions published (owner approved)** | `in_review → published` (owner's call, questions pre-verified `reviewed_against_source`). Guest check: 171 published questions visible via anon REST, per-page 24/12/15/20/20/20/20/20/20; guests still see only the first 2 per page in the UI (decision 29). First fully readable + practisable chapter is live in production. |
+| 2026-10-30 | **Study-section spec v1.0 received (Planning)** (decision 35) | Owner's Study spec saved verbatim as `blueprint/12`; §12 step-1 audit done and mapped against the codebase as `blueprint/13` — most of the stack already exists (pdf.js viewer, per-page questions, progress tables, storage+RLS); new work = Subject→Class selection, study dashboard, printed-label/pass. No code, repo or DB changes made — awaiting owner approval. |
 
