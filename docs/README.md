@@ -38,12 +38,12 @@ Planning is the product. These docs are written **before** each build step so th
   - [01 Landing page](frontend/screens/01-landing.md) (built)
   - [01b Landing page, launch edition](frontend/screens/01b-landing-launch-edition.md) (spec only, not built)
   - 02 Sign in and onboarding (next)
-  - 03 Home / dashboard
-  - 04 Library (chapter picker)
+  - [03 App shell (P1) + Home dashboard (P2)](frontend/screens/03-home-dashboard.md) (built)
+  - 04 Library (merged into Study hub)
   - 05 Study workspace (the core screen)
   - 06 Chapter test and results
-  - 07 Progress
-  - 08 Bookmarks and mistake notebook
+  - 07 Progress (minimal real page built)
+  - 08 Bookmarks (minimal real page built)
   - 09 Settings
   - 10 Reviewer console
 
@@ -77,5 +77,6 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-28 | **Ch-01 content imported from questions repo; chapter live** | 9 page files from `juyel-dev/neet-pcb-question-bank` validated with a faithful port of `validatePageFile`/`importPageFile` → 171 questions (`in_review`, v1 payloads, source_note `kebo101.pdf, PDF page N`), 9 page_map rows (2 unit_intro + 7 content), 9 audit_log rows (actor: Juyel-dev). Chapter set `live`. Guest end-to-end verified via anon REST: chapter visible, PDF signed URL serves exact bytes (2,263,862 B, %PDF-1.6), in_review questions hidden. |
 | 2026-10-28 | **All 171 Ch-01 questions published (owner approved)** | `in_review → published` (owner's call, questions pre-verified `reviewed_against_source`). Guest check: 171 published questions visible via anon REST, per-page 24/12/15/20/20/20/20/20/20; guests still see only the first 2 per page in the UI (decision 29). First fully readable + practisable chapter is live in production. |
 | 2026-10-30 | **Study spec v1.0 implemented — first build pass** (decisions 35–36) | `/study` hub: Subject × Class chips (URL `?subject=&class=`, saved to `profiles.prefs` for signed-in), Continue Studying, Recent Chapters, per-chapter progress bars + attempt/correct stats, honest empty states (only Biology · 11 has published content), draft chips for staff. `/library` now redirects to `/study` (old links intact); nav shows Home · Study · Settings; all `/library` links migrated. Viewer: "Dark pages" → "Invert pages" (opt-in), upload dedupe via stored `pdf_sha256` (decision 36c). Hub helpers pure + tested (`hub.test.ts`: selection/progress/attempt-latest-wins). Checks: typecheck ✓ lint ✓ tests 30✓/2 skip ✓ build ✓. Pending content for steps 8–10: Day/Night verification matrix needs Physics/Chemistry PDFs; three-subject E2E as content lands. |
+| 2026-10-30 | **P1 shell + P2 Home built — mock frame 4 with real data** (decision 37, owner-approved kick-off) | Dark sidebar (`.dark` token island — no new tokens) + `src/config/nav.ts` registry + mobile drawer; top-bar search/bell omitted honestly (no backend). `/home`: greeting (Asia/Dhaka time), 4 real stat tiles (chapters/pages seen/questions attempted/accuracy), Continue Studying card, Recent Chapters rows, Quick Actions, SVG completion ring, Today's Goal from `daily_goal` + `daily_stats`, quote card. Companion routes so the shell has no dead ends: `/practice` (real chapter list + honest "tests later" note), `/progress` (daily_stats 30-day table), `/bookmarks` (real saved-question → page links). Old `AppNav` retired; guest variant keeps Home/Study only. Checks: typecheck ✓ lint ✓ tests 30✓/2 skip ✓ build ✓ (routes `/practice /progress /bookmarks` PPR). |
 | 2026-10-30 | **Study-section spec v1.0 received (Planning)** (decision 35) | Owner's Study spec saved verbatim as `blueprint/12`; §12 step-1 audit done and mapped against the codebase as `blueprint/13` — most of the stack already exists (pdf.js viewer, per-page questions, progress tables, storage+RLS); new work = Subject→Class selection, study dashboard, printed-label/pass. No code, repo or DB changes made — awaiting owner approval. |
 
