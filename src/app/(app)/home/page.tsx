@@ -23,7 +23,7 @@ export default async function HomePage() {
           </ul>
           <div className="mt-4 flex flex-wrap gap-3">
             <ButtonLink href="/sign-in?next=%2Fhome">Sign in with Google</ButtonLink>
-            <ButtonLink href="/library" variant="secondary">Browse the library</ButtonLink>
+            <ButtonLink href="/study" variant="secondary">Start studying</ButtonLink>
           </div>
         </section>
       </div>
@@ -42,7 +42,7 @@ export default async function HomePage() {
         <p className="mt-2 max-w-prose text-sm text-ink-2">
           You have not started a chapter yet. The first chapters appear in the library as soon as they are reviewed and published.
         </p>
-        <ButtonLink href="/library" className="mt-4">Browse the library</ButtonLink>
+        <ButtonLink href="/study" className="mt-4">Start studying</ButtonLink>
       </section>
     </div>
   );

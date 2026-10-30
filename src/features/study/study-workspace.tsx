@@ -153,6 +153,11 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     setUploading(true); setNotice("");
     try {
       const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", localData))].map((b) => b.toString(16).padStart(2, "0")).join("");
+      if (chapter.pdfSha256 && sha === chapter.pdfSha256) { // decision 36c: no duplicate uploads of the same file
+        setNotice("This exact PDF is already uploaded for this chapter. Nothing was changed.");
+        setUploading(false);
+        return;
+      }
       const path = `${chapter.slug}.pdf`;
       const sb = createClient();
       const up = await sb.storage.from("chapter-pdfs").upload(path, localFile, { upsert: true, contentType: "application/pdf" });
@@ -254,7 +259,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-line bg-surface px-3 py-2">
-        <Link href={review ? "/review" : "/library"} className={btn}>← {review ? "Review" : "Library"}</Link>
+        <Link href={review ? "/review" : "/study"} className={btn}>← {review ? "Review" : "Study"}</Link>
         <strong className="mr-1 max-w-[16rem] truncate text-sm text-ink">{chapter.title}</strong>
         {chapter.status === "draft" && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-text">Draft</span>}
         <button className={btn} onClick={() => viewer.current?.scrollToPage(page - 1)} disabled={page <= 1 || !hasSource} aria-label="Previous page">‹</button>
@@ -266,7 +271,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
         <span className="w-10 text-center text-xs">{Math.round(zoom * 100)}%</span>
         <button className={btn} onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} aria-label="Zoom in">+</button>
         {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
-        <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Dark pages</label>
+        <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
         <button className={`${btn} hidden md:inline-flex`} onClick={() => setSwap((s) => !s)}>Swap sides</button>
         <button className={`${btn} hidden md:inline-flex`} onClick={() => setShowViewer((s) => !s)}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
         {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF to private storage"}</button>}

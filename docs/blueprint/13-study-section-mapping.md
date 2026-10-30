@@ -32,7 +32,7 @@ Date of audit: 2026-10-30 (post commit of pages 1–3 + ch-01 live content).
 
 Explicitly **not needed**: any new schema for subjects/questions/progress (0001–0005 already carry them), no rewrite of the guest mode, no Home work.
 
-## 3. Proposed answers to the spec's open points (need owner decision with approval)
+## 3. Proposed answers to the spec's open points (**APPROVED by owner 2026-10-30**)
 
 | Open point | Proposal | Why |
 |---|---|---|
@@ -62,3 +62,9 @@ Explicitly **not needed**: any new schema for subjects/questions/progress (0001�
 | 9–10 Testing | desktop + mobile pass; three subjects end-to-end (content-permitting) |
 
 **Where content is thin** (only Biology Class 11 exists today), the UI must show honest empty states for other subjects, not fake data (truth-in-copy rule).
+
+## 6. Build status — first pass complete (2026-10-30)
+
+- §5 rows 2–7 done: `/study` hub (subject×class chips with URL params + `profiles.prefs` save via `setStudyPrefs`), Continue Studying, Recent Chapters, per-chapter progress/attempt stats, honest empty states; `/library` → redirects to `/study`; nav + all links migrated; "Invert pages" label; upload dedupe (`pdf_sha256` compare, ruling (c)).
+- Guest rulings intact: no DB writes for guests (36a); the hub's guest banner offers sign-in only.
+- Pending: §10 Day/Night verification matrix and steps 9–10 (desktop/mobile + three-subject E2E) need Physics/Chemistry content to be meaningful.

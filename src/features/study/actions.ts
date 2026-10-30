@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
+import { CLASSES, SUBJECTS } from "./hub";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type Result = { ok: boolean };
@@ -45,4 +46,20 @@ export async function toggleBookmark(i: { questionId: string; on: boolean }): Pr
     ? await supabase.from("bookmarks").upsert({ user_id: user.id, question_id: i.questionId }, { onConflict: "user_id,question_id" })
     : await supabase.from("bookmarks").delete().eq("user_id", user.id).eq("question_id", i.questionId);
   return { ok: !q.error };
+}
+
+/** Saves the Study selection as a user preference (spec §7; guests never save — decision 36a). */
+export async function setStudyPrefs(i: { subject?: string; class?: string } = {}): Promise<Result> {
+  const subject = SUBJECTS.find((s) => s === i.subject);
+  const cls = CLASSES.find((c) => c === i.class);
+  if (!subject && !cls) return { ok: false };
+  const { supabase, user } = await authed();
+  if (!user) return { ok: false };
+  const { data } = await supabase.from("profiles").select("prefs").eq("id", user.id).single();
+  const prefs: Record<string, unknown> = data?.prefs && typeof data.prefs === "object" && !Array.isArray(data.prefs)
+    ? { ...(data.prefs as Record<string, unknown>) } : {};
+  if (subject) prefs.study_subject = subject;
+  if (cls) prefs.study_class = cls;
+  const { error } = await supabase.from("profiles").update({ prefs }).eq("id", user.id);
+  return { ok: !error };
 }

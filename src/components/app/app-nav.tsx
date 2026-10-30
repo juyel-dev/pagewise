@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
-const links = [{ href: "/home", label: "Home" }, { href: "/library", label: "Library" }, { href: "/settings", label: "Settings" }];
+const links = [{ href: "/home", label: "Home" }, { href: "/study", label: "Study" }, { href: "/settings", label: "Settings" }];
 
 export function AppNav({ guest = false }: { guest?: boolean }) {
   const path = usePathname();

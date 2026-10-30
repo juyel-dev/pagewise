@@ -5,4 +5,4 @@ export type StudyQuestion = {
 };
 export type PageMapRow = { pdf_page: number; printed_label: string | null; kind: string };
 export type QState = { chosen: number[]; checked: boolean; attemptNo: number };
-export type StudyChapter = { id: string; slug: string; title: string; pageCount: number; status: "draft" | "live"; unit: string | null };
+export type StudyChapter = { id: string; slug: string; title: string; pageCount: number; status: "draft" | "live"; unit: string | null; pdfSha256: string | null };

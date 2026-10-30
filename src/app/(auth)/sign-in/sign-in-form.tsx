@@ -11,7 +11,7 @@ import { hasSupabaseEnv } from "@/lib/supabase/env";
 export function SignInForm() {
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
-  const guestHref = next || "/library";
+  const guestHref = next || "/study";
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [message, setMessage] = useState(params.get("error") ? "That sign-in did not complete. Try again, or continue as a guest." : "");
 

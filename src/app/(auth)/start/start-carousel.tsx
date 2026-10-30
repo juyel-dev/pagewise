@@ -1,5 +1,6 @@
 "use client";
 import { useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -50,7 +51,7 @@ export function StartCarousel() {
         </div>
       </article>
       <p className="text-center text-sm">
-        <a href="/library" className="text-muted underline underline-offset-2 hover:text-ink">Skip for now — explore as a guest</a>
+        <Link href="/study" className="text-muted underline underline-offset-2 hover:text-ink">Skip for now — explore as a guest</Link>
       </p>
     </div>
   );

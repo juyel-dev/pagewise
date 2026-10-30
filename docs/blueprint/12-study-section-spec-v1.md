@@ -1,7 +1,8 @@
 # Blueprint · 12 · PageWise Study Section Plan & Specification v1.0
 
 **Authoritative document — authored by the owner, 2026-10-30.**
-**Status:** Planning · **Scope:** Class 11 ও Class 12 — PCB (Physics, Chemistry, Biology)
+**Status:** APPROVED — 2026-10-30 (owner approved spec + blueprint/13's four proposals). Implementation may start per §12.
+**Scope:** Class 11 ও Class 12 — PCB (Physics, Chemistry, Biology)
 **Rule:** Implementation শুরু করার আগে এই specification অনুমোদন করতে হবে।
 
 ## 1. Objective

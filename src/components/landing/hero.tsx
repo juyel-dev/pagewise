@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { brand } from "@/config/brand";
@@ -17,7 +18,7 @@ export function Hero() {
               Continue with Google
             </ButtonLink>
           </div>
-          <p className="mt-4 text-sm text-muted">Your progress. Your pace. Your NEET. · <a href="/library" className="font-medium text-brand-text underline underline-offset-2">Explore as a guest</a></p>
+          <p className="mt-4 text-sm text-muted">Your progress. Your pace. Your NEET. · <Link href="/study" className="font-medium text-brand-text underline underline-offset-2">Explore as a guest</Link></p>
         </div>
         <div className="mt-10 flex justify-center pb-10 sm:mt-14 sm:pb-16"><BookIllustration /></div>
       </Container>

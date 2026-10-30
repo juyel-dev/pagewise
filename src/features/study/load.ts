@@ -23,7 +23,7 @@ export async function loadStudy(slug: string, opts: { p?: string; review: boolea
   const guest = !s;
 
   const supabase = await createClient();
-  const { data: ch } = await supabase.from("chapters").select("id, slug, title, page_count, pdf_path, status, unit_title").eq("slug", slug).maybeSingle();
+  const { data: ch } = await supabase.from("chapters").select("id, slug, title, page_count, pdf_path, pdf_sha256, status, unit_title").eq("slug", slug).maybeSingle();
   if (!ch) return null;
 
   const qBase = supabase.from("questions")
@@ -68,7 +68,7 @@ export async function loadStudy(slug: string, opts: { p?: string; review: boolea
   const want = Number(opts.p) || prog.data?.last_page || 1;
 
   return {
-    chapter: { id: ch.id, slug: ch.slug, title: ch.title, pageCount: count, status: ch.status, unit: ch.unit_title ?? null },
+    chapter: { id: ch.id, slug: ch.slug, title: ch.title, pageCount: count, status: ch.status, unit: ch.unit_title ?? null, pdfSha256: ch.pdf_sha256 ?? null },
     pageMap: (pm.data ?? []) as PageMapRow[], pdfUrl, isAdmin: role === "admin", review: opts.review,
     questionsByPage: grouped, pageTotal,
     initialPage: Math.min(Math.max(1, want), count),
