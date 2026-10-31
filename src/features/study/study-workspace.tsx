@@ -353,6 +353,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
           <details className="relative ml-auto lg:hidden">
             <summary className={`${btn} cursor-pointer`}>More</summary>
             <div className="absolute right-0 z-30 mt-2 flex w-56 flex-col gap-3 rounded-xl border border-line bg-surface p-3 shadow-window">
+              <button className={btn} onClick={() => setShowViewer((visible) => !visible)}>{showViewer ? "Hide PDF" : "Show PDF"}</button>
               {!review && <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
               <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
               {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload PDF"}</button>}
