@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { PdfViewer, type PdfViewerHandle } from "@/components/viewer/pdf-viewer";
 import { isCorrect } from "@/lib/question-bank/format";
 import { createClient } from "@/lib/supabase/client";
@@ -14,6 +15,16 @@ const btn = "inline-flex h-9 items-center rounded-lg border border-line bg-surfa
 const btnPrimary = "inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50";
 // module-level so the purity lint rule does not treat event-handler timing as render-time work
 const nowMs = () => Date.now();
+
+function splitBounds(width: number, swap: boolean) {
+  const available = Math.max(1, width - 12);
+  const leftMin = swap ? 360 : 320;
+  const rightMin = swap ? 320 : 360;
+  return {
+    min: Math.ceil((leftMin / available) * 100),
+    max: Math.floor(((available - rightMin) / available) * 100),
+  };
+}
 
 type Props = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
@@ -37,6 +48,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const [follow, setFollow] = useState(false);
   const [swap, setSwap] = useState(false);
   const [showViewer, setShowViewer] = useState(true);
+  const [splitRatio, setSplitRatio] = useState(45);
+  const splitRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"read" | "practise">("practise");
   const [states, setStates] = useState<Record<string, QState>>({});
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set(bookmarkedIds));
@@ -47,6 +60,47 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const started = useRef<Record<string, number>>({});
   const seen = useRef<Set<number>>(new Set(seenPages));
   const readyRef = useRef(false);
+
+  function updateSplit(clientX: number) {
+    const rect = splitRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const bounds = splitBounds(rect.width, swap);
+    const usable = Math.max(1, rect.width - 12);
+    const next = ((clientX - rect.left - 6) / usable) * 100;
+    setSplitRatio(Math.max(bounds.min, Math.min(bounds.max, next)));
+  }
+
+  function onSplitPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updateSplit(e.clientX);
+  }
+
+  function onSplitPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) updateSplit(e.clientX);
+  }
+
+  function onSplitPointerUp(e: ReactPointerEvent<HTMLDivElement>) {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+  }
+
+  function onSplitKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
+    const bounds = splitBounds(splitRef.current?.clientWidth ?? 784, swap);
+    const step = e.shiftKey ? 5 : 2;
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      setSplitRatio((value) => Math.max(bounds.min, value - step));
+    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setSplitRatio((value) => Math.min(bounds.max, value + step));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setSplitRatio(bounds.min);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setSplitRatio(bounds.max);
+    }
+  }
 
   const labelOf = useCallback((p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p), [pageMap]);
   const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}`)}`;
@@ -258,33 +312,77 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col">
-      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-surface px-3 py-2">
-        <Link href={review ? "/review" : "/study"} className={btn}>← {review ? "Review" : "Study"}</Link>
-        <strong className="mr-1 max-w-[16rem] truncate text-sm text-ink">{chapter.title}</strong>
-        {chapter.status === "draft" && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-text">Draft</span>}
-        <button className={btn} onClick={() => viewer.current?.scrollToPage(page - 1)} disabled={page <= 1 || !hasSource} aria-label="Previous page">‹</button>
-        <span className="text-xs text-ink-2">PDF {page}/{total} · printed {labelOf(page)}</span>
-        <button className={btn} onClick={() => viewer.current?.scrollToPage(page + 1)} disabled={page >= total || !hasSource} aria-label="Next page">›</button>
-        <input value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
-          aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-28 rounded-lg border border-line bg-field px-2 text-xs" />
-        <button className={btn} onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} aria-label="Zoom out">−</button>
-        <span className="w-10 text-center text-xs">{Math.round(zoom * 100)}%</span>
-        <button className={btn} onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} aria-label="Zoom in">+</button>
-        {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
-        <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
-        <button className={`${btn} hidden md:inline-flex`} onClick={() => setSwap((s) => !s)}>Swap sides</button>
-        <button className={`${btn} hidden md:inline-flex`} onClick={() => setShowViewer((s) => !s)}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
-        {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF to private storage"}</button>}
+      <div className="border-b border-line bg-surface px-3 py-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href={review ? "/review" : "/study"} className={btn}>← {review ? "Review" : "Study"}</Link>
+          <strong className="min-w-0 max-w-[16rem] flex-1 truncate text-sm text-ink">{chapter.title}</strong>
+          {chapter.status === "draft" && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-text">Draft</span>}
+          <div className="flex items-center gap-1">
+            <button className={btn} onClick={() => viewer.current?.scrollToPage(page - 1)} disabled={page <= 1 || !hasSource} aria-label="Previous page">‹</button>
+            <span className="min-w-28 text-center text-xs text-ink-2">PDF {page}/{total} · printed {labelOf(page)}</span>
+            <button className={btn} onClick={() => viewer.current?.scrollToPage(page + 1)} disabled={page >= total || !hasSource} aria-label="Next page">›</button>
+          </div>
+          <input value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
+            aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-24 rounded-lg border border-line bg-field px-2 text-xs" />
+          <div className="flex items-center gap-1" role="group" aria-label="PDF zoom">
+            <button className={btn} onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} aria-label="Zoom out">−</button>
+            <span className="w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
+            <button className={btn} onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} aria-label="Zoom in">+</button>
+          </div>
+          <details className="relative ml-auto lg:hidden">
+            <summary className={`${btn} cursor-pointer`}>More</summary>
+            <div className="absolute right-0 z-30 mt-2 flex w-56 flex-col gap-3 rounded-xl border border-line bg-surface p-3 shadow-window">
+              {!review && <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
+              <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
+              {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload PDF"}</button>}
+            </div>
+          </details>
+          <div className="hidden items-center gap-3 lg:flex">
+            {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
+            <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
+            <button className={btn} onClick={() => { setSwap((s) => !s); setSplitRatio((r) => 100 - r); }}>Swap sides</button>
+            <button className={btn} onClick={() => setShowViewer((s) => !s)}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
+            {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF"}</button>}
+          </div>
+        </div>
       </div>
       {notice && <p role="alert" className="bg-bad-soft px-3 py-1 text-xs text-bad">{notice}</p>}
-      <div className="flex border-b border-line md:hidden" role="tablist" aria-label="Panels">
+      <div className="flex border-b border-line lg:hidden" role="tablist" aria-label="Panels">
         {(["read", "practise"] as const).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
         ))}
       </div>
-      <div className={`grid min-h-0 flex-1 ${showViewer ? "md:grid-cols-[minmax(320px,1fr)_minmax(360px,1.2fr)]" : "md:grid-cols-1"}`}>
-        <div className={`min-h-0 ${tab === "practise" ? "" : "hidden md:block"} ${swap ? "md:order-2" : ""}`}>{practicePane}</div>
-        <div className={`min-h-0 ${tab === "read" ? "" : "hidden md:block"} ${showViewer ? "" : "md:hidden"} ${swap ? "md:order-1" : ""}`}>{viewerPane}</div>
+      <div
+        ref={splitRef}
+        className={`flex min-h-0 flex-1 flex-col lg:grid ${showViewer ? "" : "lg:grid-cols-1"}`}
+        style={showViewer ? { gridTemplateColumns: `${splitRatio}fr 12px ${100 - splitRatio}fr` } : undefined}
+      >
+        <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
+        {showViewer && (
+          <>
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize question and PDF panels"
+              aria-valuemin={splitBounds(splitRef.current?.clientWidth ?? 784, swap).min}
+              aria-valuemax={splitBounds(splitRef.current?.clientWidth ?? 784, swap).max}
+              aria-valuenow={Math.round(splitRatio)}
+              aria-valuetext={`${Math.round(splitRatio)}% left panel, ${Math.round(100 - splitRatio)}% right panel`}
+              tabIndex={0}
+              onPointerDown={onSplitPointerDown}
+              onPointerMove={onSplitPointerMove}
+              onPointerUp={onSplitPointerUp}
+              onPointerCancel={onSplitPointerUp}
+              onKeyDown={onSplitKeyDown}
+              onDoubleClick={() => setSplitRatio(swap ? 55 : 45)}
+              className="group hidden touch-none cursor-col-resize items-center justify-center bg-surface-2 outline-none hover:bg-brand-soft focus-visible:ring-2 focus-visible:ring-brand-ring lg:flex"
+              style={{ gridColumn: 2 }}
+            >
+              <span className="h-10 w-1 rounded-full bg-line transition-colors group-hover:bg-brand group-focus-visible:bg-brand" />
+            </div>
+            <div className={`min-h-0 flex-1 ${tab === "read" ? "" : "hidden lg:block"} ${swap ? "lg:col-start-1" : "lg:col-start-3"}`}>{viewerPane}</div>
+          </>
+        )}
       </div>
     </div>
   );
