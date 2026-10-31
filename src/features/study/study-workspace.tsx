@@ -355,7 +355,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
       <div
         ref={splitRef}
         className={`flex min-h-0 flex-1 flex-col lg:grid ${showViewer ? "" : "lg:grid-cols-1"}`}
-        style={showViewer ? { gridTemplateColumns: `${splitRatio}fr 12px ${100 - splitRatio}fr` } : undefined}
+        style={showViewer ? { gridTemplateColumns: `minmax(${swap ? 360 : 320}px, ${splitRatio}fr) 12px minmax(${swap ? 320 : 360}px, ${100 - splitRatio}fr)` } : undefined}
       >
         <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
         {showViewer && (
