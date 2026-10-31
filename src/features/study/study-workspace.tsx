@@ -20,9 +20,11 @@ function splitBounds(width: number, swap: boolean) {
   const available = Math.max(1, width - 12);
   const leftMin = swap ? 360 : 320;
   const rightMin = swap ? 320 : 360;
+  const maxLeft = available - rightMin;
+  if (leftMin > maxLeft) return { min: 50, max: 50 };
   return {
     min: Math.ceil((leftMin / available) * 100),
-    max: Math.floor(((available - rightMin) / available) * 100),
+    max: Math.floor((maxLeft / available) * 100),
   };
 }
 
@@ -49,6 +51,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const [swap, setSwap] = useState(false);
   const [showViewer, setShowViewer] = useState(true);
   const [splitRatio, setSplitRatio] = useState(45);
+  const [splitWidth, setSplitWidth] = useState(784);
   const splitRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"read" | "practise">("practise");
   const [states, setStates] = useState<Record<string, QState>>({});
@@ -60,6 +63,16 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const started = useRef<Record<string, number>>({});
   const seen = useRef<Set<number>>(new Set(seenPages));
   const readyRef = useRef(false);
+
+  useEffect(() => {
+    const el = splitRef.current;
+    if (!el) return;
+    const updateWidth = () => setSplitWidth(el.clientWidth);
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   function updateSplit(clientX: number) {
     const rect = splitRef.current?.getBoundingClientRect();
@@ -85,7 +98,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   }
 
   function onSplitKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
-    const bounds = splitBounds(splitRef.current?.clientWidth ?? 784, swap);
+    const bounds = splitBounds(splitWidth, swap);
     const step = e.shiftKey ? 5 : 2;
     if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
       e.preventDefault();
@@ -230,6 +243,14 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const hasSource = Boolean(pdfUrl || localData);
   const cur = qs[Math.min(focusIdx, Math.max(qs.length - 1, 0))];
   const effMode = review ? "list" : mode;
+  const splitBoundsNow = splitBounds(splitWidth, swap);
+  const splitAvailable = Math.max(1, splitWidth - 12);
+  const leftMinWidth = swap ? 360 : 320;
+  const rightMinWidth = swap ? 320 : 360;
+  const leftPaneWidth = Math.max(leftMinWidth, Math.min(
+    splitAvailable - rightMinWidth,
+    Math.round(splitAvailable * splitRatio / 100),
+  ));
 
   const practicePane = (
     <section aria-label={review ? "Review" : "Practice"} className="flex h-full min-h-0 flex-col overflow-auto bg-surface p-4">
@@ -355,7 +376,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
       <div
         ref={splitRef}
         className={`flex min-h-0 flex-1 flex-col lg:grid ${showViewer ? "" : "lg:grid-cols-1"}`}
-        style={showViewer ? { gridTemplateColumns: `minmax(${swap ? 360 : 320}px, ${splitRatio}fr) 12px minmax(${swap ? 320 : 360}px, ${100 - splitRatio}fr)` } : undefined}
+        style={showViewer ? { gridTemplateColumns: `minmax(${leftMinWidth}px, ${leftPaneWidth}px) 12px minmax(${rightMinWidth}px, 1fr)` } : undefined}
       >
         <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
         {showViewer && (
@@ -364,8 +385,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
               role="separator"
               aria-orientation="vertical"
               aria-label="Resize question and PDF panels"
-              aria-valuemin={splitBounds(splitRef.current?.clientWidth ?? 784, swap).min}
-              aria-valuemax={splitBounds(splitRef.current?.clientWidth ?? 784, swap).max}
+              aria-valuemin={splitBoundsNow.min}
+              aria-valuemax={splitBoundsNow.max}
               aria-valuenow={Math.round(splitRatio)}
               aria-valuetext={`${Math.round(splitRatio)}% left panel, ${Math.round(100 - splitRatio)}% right panel`}
               tabIndex={0}
