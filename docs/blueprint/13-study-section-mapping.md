@@ -67,4 +67,5 @@ Explicitly **not needed**: any new schema for subjects/questions/progress (0001�
 
 - §5 rows 2–7 done: `/study` hub (subject×class chips with URL params + `profiles.prefs` save via `setStudyPrefs`), Continue Studying, Recent Chapters, per-chapter progress/attempt stats, honest empty states; `/library` → redirects to `/study`; nav + all links migrated; "Invert pages" label; upload dedupe (`pdf_sha256` compare, ruling (c)).
 - Guest rulings intact: no DB writes for guests (36a); the hub's guest banner offers sign-in only.
+- Content (2026-10-31): Ch-02 `Biological Classification` imported — 232 questions `in_review` + NCERT PDF (13 pages) uploaded, chapter `draft`; Biology · 11 content now 1 live + 1 draft awaiting owner publish (§12 row 3's "seed book rows as content lands" advancing per import).
 - Pending: §10 Day/Night verification matrix and steps 9–10 (desktop/mobile + three-subject E2E) need Physics/Chemistry content to be meaningful.
