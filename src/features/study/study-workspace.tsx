@@ -135,6 +135,12 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     requestAnimationFrame(() => viewer.current?.scrollToPage(initialPage));
   }, [initialPage]);
   const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
+  function toggleViewer() {
+    setShowViewer((visible) => {
+      if (visible) setTab("practise");
+      return !visible;
+    });
+  }
 
   useEffect(() => {
     if (!readyRef.current || review || guest) return; // guests: progress is not persisted (decision 28)
@@ -158,7 +164,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).closest("input, textarea, select")) return;
       if ((e.key === "p" || e.key === "P") && !review) practiseHere();
-      else if (e.key === "v" || e.key === "V") setShowViewer((s) => !s);
+      else if (e.key === "v" || e.key === "V") toggleViewer();
       else if (e.key === "[") viewer.current?.scrollToPage(page - 1);
       else if (e.key === "]") viewer.current?.scrollToPage(page + 1);
     };
@@ -354,7 +360,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
           <details className="relative ml-auto lg:hidden">
             <summary className={`${btn} cursor-pointer`}>More</summary>
             <div className="absolute right-0 z-30 mt-2 flex w-56 flex-col gap-3 rounded-xl border border-line bg-surface p-3 shadow-window">
-              <button className={btn} onClick={() => setShowViewer((visible) => !visible)}>{showViewer ? "Hide PDF" : "Show PDF"}</button>
+              <button className={btn} onClick={toggleViewer}>{showViewer ? "Hide PDF" : "Show PDF"}</button>
               {!review && <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
               <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
               {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload PDF"}</button>}
@@ -364,14 +370,14 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
             {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
             <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
             <button className={btn} onClick={() => { setSwap((s) => !s); setSplitRatio((r) => 100 - r); }}>Swap sides</button>
-            <button className={btn} onClick={() => setShowViewer((s) => !s)}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
+            <button className={btn} onClick={toggleViewer}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
             {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF"}</button>}
           </div>
         </div>
       </div>
       {notice && <p role="alert" className="bg-bad-soft px-3 py-1 text-xs text-bad">{notice}</p>}
       <div className="flex border-b border-line lg:hidden" role="tablist" aria-label="Panels">
-        {(["read", "practise"] as const).map((t) => (
+        {(["read", "practise"] as const).filter((t) => t !== "read" || showViewer).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
         ))}
       </div>
