@@ -135,12 +135,12 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     requestAnimationFrame(() => viewer.current?.scrollToPage(initialPage));
   }, [initialPage]);
   const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
-  function toggleViewer() {
+  const toggleViewer = useCallback(() => {
     setShowViewer((visible) => {
       if (visible) setTab("practise");
       return !visible;
     });
-  }
+  }, []);
 
   useEffect(() => {
     if (!readyRef.current || review || guest) return; // guests: progress is not persisted (decision 28)
@@ -170,7 +170,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [page, practiseHere, review]);
+  }, [page, practiseHere, review, toggleViewer]);
 
   // ----- practice actions -----
   function pick(q: StudyQuestion, i: number) {
