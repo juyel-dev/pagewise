@@ -244,12 +244,13 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const cur = qs[Math.min(focusIdx, Math.max(qs.length - 1, 0))];
   const effMode = review ? "list" : mode;
   const splitBoundsNow = splitBounds(splitWidth, swap);
+  const effectiveSplitRatio = Math.max(splitBoundsNow.min, Math.min(splitBoundsNow.max, splitRatio));
   const splitAvailable = Math.max(1, splitWidth - 12);
   const leftMinWidth = swap ? 360 : 320;
   const rightMinWidth = swap ? 320 : 360;
   const leftPaneWidth = Math.max(leftMinWidth, Math.min(
     splitAvailable - rightMinWidth,
-    Math.round(splitAvailable * splitRatio / 100),
+    Math.round(splitAvailable * effectiveSplitRatio / 100),
   ));
 
   const practicePane = (
@@ -388,8 +389,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
               aria-label="Resize question and PDF panels"
               aria-valuemin={splitBoundsNow.min}
               aria-valuemax={splitBoundsNow.max}
-              aria-valuenow={Math.round(splitRatio)}
-              aria-valuetext={`${Math.round(splitRatio)}% left panel, ${Math.round(100 - splitRatio)}% right panel`}
+              aria-valuenow={effectiveSplitRatio}
+              aria-valuetext={`${effectiveSplitRatio}% left panel, ${100 - effectiveSplitRatio}% right panel`}
               tabIndex={0}
               onPointerDown={onSplitPointerDown}
               onPointerMove={onSplitPointerMove}
