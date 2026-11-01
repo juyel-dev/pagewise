@@ -134,8 +134,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const onReady = useCallback(({ doc }: { doc: { numPages: number } }) => {
     setNumPages(doc.numPages);
     readyRef.current = true;
-    requestAnimationFrame(() => viewer.current?.scrollToPage(initialPage));
-  }, [initialPage]);
+    requestAnimationFrame(() => viewer.current?.scrollToPage(page || initialPage));
+  }, [initialPage, page]);
   const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
   const toggleViewer = useCallback(() => {
     setShowViewer((visible) => {
