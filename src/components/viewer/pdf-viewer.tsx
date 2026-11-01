@@ -20,7 +20,7 @@ export type PdfViewerProps = {
   onReady: (info: { doc: PDFDocumentProxy; sizes: PageSize[] }) => void;
   onMetric?: (m: PageMetric) => void;
   onError?: (msg: string) => void;
-  onRetry?: () => void;
+  onRetry: () => void;
 };
 
 type Rendered = { scale: number; status: "rendering" | "done"; canvas: HTMLCanvasElement; textDiv: HTMLDivElement; task: RenderTask | null; text: TextLayer | null };
@@ -83,8 +83,17 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
         });
         loadingTask = task;
         taskRef.current = task;
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
         const doc = await task.promise;
-        if (cancelled) return;
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
         const pages: PDFPageProxy[] = [];
         const sz: PageSize[] = [];
         for (let i = 1; i <= doc.numPages; i++) {
@@ -92,7 +101,11 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
           const v = p.getViewport({ scale: 1 });
           pages.push(p); sz.push({ w: v.width, h: v.height });
         }
-        if (cancelled) return;
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
         pagesRef.current = pages; pdfjsRef.current = pdfjs;
         setSizes(sz); setStatus("ready");
         propsRef.current.onReady({ doc, sizes: sz });
