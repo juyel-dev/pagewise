@@ -57,6 +57,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const [states, setStates] = useState<Record<string, QState>>({});
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set(bookmarkedIds));
   const [notice, setNotice] = useState("");
+  const [pdfIssue, setPdfIssue] = useState(false);
+  const [viewerKey, setViewerKey] = useState(0);
   const [jump, setJump] = useState("");
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -325,7 +327,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   );
 
   const viewerPane = hasSource ? (
-    <PdfViewer ref={viewer} data={localData} url={localData ? null : pdfUrl} zoom={zoom} darkPages={dark} onPageChange={onPageChange} onReady={onReady} onError={() => setNotice("The PDF could not be loaded.")} />
+    <PdfViewer key={viewerKey} ref={viewer} data={localData} url={localData ? null : pdfUrl} zoom={zoom} darkPages={dark} onPageChange={onPageChange} onReady={onReady}
+      onError={() => setPdfIssue(true)} onRetry={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }} />
   ) : (
     <div className="flex h-full flex-col items-center justify-center gap-3 bg-surface-2 p-6 text-center">
       <h2 className="text-lg font-semibold text-ink">Chapter PDF not available yet</h2>
@@ -376,6 +379,10 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
         </div>
       </div>
       {notice && <p role="alert" className="bg-bad-soft px-3 py-1 text-xs text-bad">{notice}</p>}
+      {pdfIssue && <div role="alert" className="flex flex-wrap items-center justify-between gap-2 bg-bad-soft px-3 py-2 text-xs text-bad">
+        <span>A PDF page could not be displayed.</span>
+        <button type="button" className="rounded-md border border-current px-2 py-1 font-medium" onClick={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }}>Reload PDF</button>
+      </div>}
       <div className="flex border-b border-line lg:hidden" role="tablist" aria-label="Panels">
         {(["read", "practise"] as const).filter((t) => t !== "read" || showViewer).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
