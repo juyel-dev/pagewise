@@ -11,7 +11,7 @@ export const metadata: Metadata = {
  openGraph:{type:"website",siteName:brand.name,title:`${brand.name} — ${brand.tagline}`,description:brand.description},
  twitter:{card:"summary_large_image",title:`${brand.name} — ${brand.tagline}`,description:brand.description},
 };
-export const viewport: Viewport = {themeColor:[{media:"(prefers-color-scheme: light)",color:"#fafaf7"},{media:"(prefers-color-scheme: dark)",color:"#0c1210"}]};
+export const viewport: Viewport = {themeColor:[{media:"(prefers-color-scheme: light)",color:"#f8fafc"},{media:"(prefers-color-scheme: dark)",color:"#0b1120"}]};
 export default function RootLayout({children}: LayoutProps<"/">) {
  return <html lang="en" suppressHydrationWarning><body className="min-h-dvh antialiased"><ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange><a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white">Skip to content</a>{children}</ThemeProvider></body></html>;
 }

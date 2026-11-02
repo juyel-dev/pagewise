@@ -92,8 +92,8 @@ function ChecklistArt() {
           </g>
         ))}
       </g>
-      <circle cx="146" cy="112" r="16" fill="var(--good)" />
-      <path d="M139.5 112 l4.5 4.8 9-9.6" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="146" cy="112" r="16" fill="var(--good-soft)" />
+      <path d="M139.5 112 l4.5 4.8 9-9.6" stroke="var(--good)" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
