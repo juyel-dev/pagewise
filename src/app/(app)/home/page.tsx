@@ -17,7 +17,8 @@ type ChapterRow = {
   id: string; slug: string; number: number; title: string; page_count: number | null;
   books: { class: string; subject: string } | { class: string; subject: string }[] | null;
 };
-type StatsRow = { day: string; answered: number; correct: number };
+type AttemptRow = { created_at: string; is_correct: boolean };
+const STUDY_TIME_ZONE = "Asia/Kolkata";
 
 const SUBJECT_META: Record<string, { icon: LucideIcon; tile: string }> = {
   Biology: { icon: Leaf, tile: "bg-good-soft text-good" },
@@ -26,9 +27,9 @@ const SUBJECT_META: Record<string, { icon: LucideIcon; tile: string }> = {
 };
 const subjectMeta = (subject: string) => SUBJECT_META[subject] ?? { icon: BookOpen, tile: "bg-brand-soft text-brand-text" };
 
-/** Server-rendered, deterministic per request (for Bangladesh = Asia/Dhaka). */
+/** Server-rendered, deterministic per request (for the India-focused NCERT study experience). */
 function daypart(): "morning" | "afternoon" | "evening" {
-  const h = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Asia/Dhaka" }).format(new Date()));
+  const h = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: STUDY_TIME_ZONE }).format(new Date()));
   return h >= 5 && h < 12 ? "morning" : h < 17 ? "afternoon" : "evening";
 }
 function relTime(iso: string): string {
@@ -42,9 +43,12 @@ function relTime(iso: string): string {
   if (days < 30) return `${days} days ago`;
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(Date.parse(iso));
 }
-function todayIn(dhaka: StatsRow[]): StatsRow | undefined {
-  const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" }).format(new Date()); // YYYY-MM-DD
-  return dhaka.find((r) => r.day === day);
+function studyDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: STUDY_TIME_ZONE }).format(new Date(iso));
+}
+function answeredTodayIn(attempts: AttemptRow[]): number {
+  const today = studyDay(new Date().toISOString());
+  return attempts.filter((a) => studyDay(a.created_at) === today).length;
 }
 
 function Bar({ pct, className = "" }: { pct: number; className?: string }) {
@@ -126,10 +130,10 @@ export default async function HomePage() {
   }
 
   const supabase = await createClient();
-  const [chaptersRes, progRes, statsRes] = await Promise.all([
+  const [chaptersRes, progRes, attemptsRes] = await Promise.all([
     supabase.from("chapters").select("id, slug, number, title, page_count, books(class, subject)").eq("status", "live").order("number"),
     supabase.from("reading_progress").select("chapter_id, last_page, pages_seen, updated_at").eq("user_id", s.user.id).order("updated_at", { ascending: false }),
-    supabase.from("daily_stats").select("day, answered, correct").order("day", { ascending: false }),
+    supabase.from("attempts").select("created_at, is_correct").eq("user_id", s.user.id).order("created_at", { ascending: false }),
   ]);
 
   const chapters = ((chaptersRes.data ?? []) as unknown as ChapterRow[]).map((r) => {
@@ -137,25 +141,30 @@ export default async function HomePage() {
     return { ...r, bookClass: b?.class ?? "", bookSubject: b?.subject ?? "" };
   });
   const rows = (progRes.data ?? []) as HubProgressRow[];
-  const stats = (statsRes.data ?? []) as StatsRow[];
+  const attempts = (attemptsRes.data ?? []) as AttemptRow[];
 
   const totalChapters = chapters.length;
   const totalPages = chapters.reduce((n, c) => n + (c.page_count ?? 0), 0);
-  const pagesSeen = new Set<number>();
-  for (const r of rows) for (const p of r.pages_seen ?? []) if (p > 0) pagesSeen.add(p);
-  const attempted = stats.reduce((n, r) => n + r.answered, 0);
-  const correctCount = stats.reduce((n, r) => n + r.correct, 0);
+  const progressByChapter = new Map(rows.map((r) => [r.chapter_id, r]));
+  const pagesSeen = chapters.reduce((sum, chapter) => {
+    const seen = new Set((progressByChapter.get(chapter.id)?.pages_seen ?? [])
+      .filter((page) => page > 0 && (!chapter.page_count || page <= chapter.page_count)));
+    return sum + seen.size;
+  }, 0);
+  const attempted = attempts.length;
+  const correctCount = attempts.filter((a) => a.is_correct).length;
   const accuracy = attempted > 0 ? Math.round((correctCount / attempted) * 100) : null;
 
-  const resume = rows[0];
+  const liveChapterIds = new Set(chapters.map((c) => c.id));
+  const validRows = rows.filter((r) => liveChapterIds.has(r.chapter_id));
+  const resume = validRows[0];
   const resumeCh = resume?.chapter_id ? chapters.find((c) => c.id === resume.chapter_id) : undefined;
-  const recent = rows.slice(0, 3);
-  const chaptersStarted = new Set(rows.map((r) => r.chapter_id)).size;
+  const recent = validRows.slice(0, 3);
+  const chaptersStarted = new Set(validRows.map((r) => r.chapter_id)).size;
   const overallPct = totalPages > 0 ? Math.min(100, Math.round((pagesSeen.size / totalPages) * 100)) : 0;
 
-  const today = todayIn(stats);
   const goal = s.profile?.daily_goal ?? 20;
-  const answeredToday = Math.min(today?.answered ?? 0, goal);
+  const answeredToday = Math.min(answeredTodayIn(attempts), goal);
   const goalRemaining = Math.max(0, goal - answeredToday);
   const hrefOf = (slug: string, page?: number | null) => `/study/${slug}${page && page > 0 ? `?p=${page}` : ""}`;
   const firstName = (s.profile?.display_name || "there").split(" ")[0];
