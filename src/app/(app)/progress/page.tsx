@@ -58,7 +58,8 @@ export default async function ProgressPage() {
         </p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="min-w-[32rem] w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs text-muted">
                 <th className="px-4 py-2.5 font-medium">Day</th>
@@ -78,6 +79,7 @@ export default async function ProgressPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
