@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/logo";
 import { brand } from "@/config/brand";
@@ -17,9 +17,55 @@ type Props = { guest: boolean; right?: ReactNode; children?: ReactNode };
  */
 export function AppShell({ guest, right, children }: Props) {
   const [open, setOpen] = useState(false);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
   const path = usePathname();
   const items = NAV_ITEMS.filter((i) => !guest || !i.auth);
   const active = (href: string) => path === href || path.startsWith(href + "/");
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const drawer = drawerRef.current;
+    const getFocusable = () => Array.from(
+      drawer?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [],
+    );
+    getFocusable()[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        drawer?.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const focusOutsideDrawer = !drawer?.contains(document.activeElement);
+      if (event.shiftKey && (document.activeElement === first || focusOutsideDrawer)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || focusOutsideDrawer)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      mobileTriggerRef.current?.focus();
+    };
+  }, [open]);
 
   const panel = (
     <div className="flex h-full flex-col bg-canvas text-ink">
@@ -62,7 +108,7 @@ export function AppShell({ guest, right, children }: Props) {
     <>
       {/* Mobile top bar + drawer */}
       <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-line bg-surface/90 px-4 backdrop-blur md:hidden">
-        <button type="button" className="-ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-surface-2"
+        <button ref={mobileTriggerRef} type="button" className="-ml-2 flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-surface-2"
           aria-expanded={open} aria-controls="app-drawer" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((o) => !o)}>
           {open ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
         </button>
@@ -72,7 +118,8 @@ export function AppShell({ guest, right, children }: Props) {
       {open && (
         <div id="app-drawer" className="fixed inset-0 z-40 md:hidden">
           <button type="button" aria-label="Close menu overlay" className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-60 border-r border-line shadow-window dark">{panel}</aside>
+          <aside ref={drawerRef} role="dialog" aria-modal="true" aria-label="Main navigation" tabIndex={-1}
+            className="absolute inset-y-0 left-0 w-60 border-r border-line shadow-window dark">{panel}</aside>
         </div>
       )}
       {/* Desktop sidebar */}
