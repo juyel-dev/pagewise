@@ -5,3 +5,40 @@
 .pdfv-page .textLayer { position: absolute; inset: 0; overflow: clip; line-height: 1; text-align: initial; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; }
 .pdfv-page .textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
 .pdfv-page .textLayer ::selection { background: rgb(20 128 98 / 0.3); }
+
+
+.pdfv-loading { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+.pdfv-loading-page {
+  position: relative;
+  max-width: 720px;
+  aspect-ratio: 0.707;
+  overflow: hidden;
+  border-radius: 2px;
+  background: linear-gradient(110deg, var(--surface) 8%, var(--surface-2) 18%, var(--surface) 33%);
+  background-size: 200% 100%;
+  box-shadow: var(--shadow-card);
+  animation: pdfv-shimmer 1.5s linear infinite;
+}
+.pdfv-page--pending::after {
+  content: "";
+  position: absolute;
+  inset: 9% 8%;
+  background: repeating-linear-gradient(to bottom, var(--surface-2) 0 2px, transparent 2px 24px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.pdfv-page-error {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  padding: 1rem;
+  color: var(--bad);
+  background: var(--bad-soft);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.pdfv-load-error { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1.5rem; color: var(--bad); }
+.pdfv-retry { border: 1px solid currentColor; border-radius: 0.5rem; padding: 0.45rem 0.8rem; font-size: 0.875rem; font-weight: 600; }
+@keyframes pdfv-shimmer { to { background-position-x: -200%; } }
+@media (prefers-reduced-motion: reduce) { .pdfv-loading-page { animation: none; } }

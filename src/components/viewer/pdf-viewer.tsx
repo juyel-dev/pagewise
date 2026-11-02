@@ -20,6 +20,7 @@ export type PdfViewerProps = {
   onReady: (info: { doc: PDFDocumentProxy; sizes: PageSize[] }) => void;
   onMetric?: (m: PageMetric) => void;
   onError?: (msg: string) => void;
+  onRetry: () => void;
 };
 
 type Rendered = { scale: number; status: "rendering" | "done"; canvas: HTMLCanvasElement; textDiv: HTMLDivElement; task: RenderTask | null; text: TextLayer | null };
@@ -34,6 +35,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
   const taskRef = useRef<PDFDocumentLoadingTask | null>(null);
   const pdfjsRef = useRef<typeof import("pdfjs-dist") | null>(null);
   const rendered = useRef(new Map<number, Rendered>());
+  const failedRef = useRef(new Set<number>());
   const wantRef = useRef<number[]>([]);
   const activeRef = useRef(0);
   const anchorRef = useRef<{ page: number; frac: number } | null>(null);
@@ -63,7 +65,13 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
     const { data, url } = props;
     if (!data && !url) return;
     let cancelled = false;
+    let loadingTask: PDFDocumentLoadingTask | null = null;
     setStatus("loading");
+    setSizes([]);
+    pagesRef.current = [];
+    pdfjsRef.current = null;
+    failedRef.current.clear();
+    releaseAll();
     (async () => {
       try {
         const pdfjs = await import("pdfjs-dist");
@@ -73,8 +81,19 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
           cMapUrl: "/pdfjs/cmaps/", cMapPacked: true,
           standardFontDataUrl: "/pdfjs/standard_fonts/",
         });
+        loadingTask = task;
+        taskRef.current = task;
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
         const doc = await task.promise;
-        if (cancelled) { void task.destroy(); return; }
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
         const pages: PDFPageProxy[] = [];
         const sz: PageSize[] = [];
         for (let i = 1; i <= doc.numPages; i++) {
@@ -82,17 +101,29 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
           const v = p.getViewport({ scale: 1 });
           pages.push(p); sz.push({ w: v.width, h: v.height });
         }
-        if (cancelled) { void task.destroy(); return; }
-        releaseAll();
-        void taskRef.current?.destroy();
-        taskRef.current = task; pagesRef.current = pages; pdfjsRef.current = pdfjs;
+        if (cancelled) {
+          if (taskRef.current === task) taskRef.current = null;
+          void task.destroy();
+          return;
+        }
+        pagesRef.current = pages; pdfjsRef.current = pdfjs;
         setSizes(sz); setStatus("ready");
         propsRef.current.onReady({ doc, sizes: sz });
       } catch (e) {
-        if (!cancelled) { setStatus("error"); propsRef.current.onError?.(e instanceof Error ? e.message : String(e)); }
+        if (!cancelled) setStatus("error");
+        if (loadingTask && taskRef.current === loadingTask) {
+          taskRef.current = null;
+          void loadingTask.destroy();
+        }
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      if (loadingTask && taskRef.current === loadingTask) {
+        taskRef.current = null;
+        void loadingTask.destroy();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.data, props.url]);
 
@@ -105,7 +136,9 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
     r.task?.cancel();
     r.text?.cancel();
     r.canvas.width = 0; r.canvas.height = 0;
-    wrapRefs.current[pg - 1]?.replaceChildren();
+    const wrap = wrapRefs.current[pg - 1];
+    wrap?.replaceChildren();
+    wrap?.classList.add("pdfv-page--pending");
     rendered.current.delete(pg);
   }
   function releaseAll() { for (const pg of [...rendered.current.keys()]) release(pg); }
@@ -136,6 +169,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
       .then(async () => {
         if (rendered.current.get(pg) !== entry) return;
         entry.status = "done";
+        wrap.classList.remove("pdfv-page--pending");
         wrap.replaceChildren(canvas, textDiv);
         propsRef.current.onMetric?.({ page: pg, ms: Math.round(performance.now() - t0), scale: s });
         const tl = new pdfjs.TextLayer({ textContentSource: page.streamTextContent(), container: textDiv, viewport: css });
@@ -144,7 +178,17 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
       })
       .catch((e: unknown) => {
         const name = (e as { name?: string })?.name;
-        if (name !== "RenderingCancelledException" && rendered.current.get(pg) === entry) propsRef.current.onError?.(`page ${pg}: ${String(e)}`);
+        if (name !== "RenderingCancelledException" && rendered.current.get(pg) === entry) {
+          failedRef.current.add(pg);
+          rendered.current.delete(pg);
+          const message = document.createElement("div");
+          message.className = "pdfv-page-error";
+          message.setAttribute("role", "alert");
+          message.textContent = `Page ${pg} could not be displayed.`;
+          wrap.replaceChildren(message);
+          wrap.classList.remove("pdfv-page--pending");
+          propsRef.current.onError?.(`page ${pg}: ${String(e)}`);
+        }
       })
       .finally(() => { activeRef.current--; pump(); });
   }
@@ -152,6 +196,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
   function pump() {
     if (activeRef.current >= MAX_PARALLEL) return;
     for (const pg of wantRef.current) {
+      if (failedRef.current.has(pg)) continue;
       const r = rendered.current.get(pg);
       if (r && r.scale === scaleRef.current) continue;
       if (r) release(pg);
@@ -236,11 +281,21 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(function Pd
   return (
     <div ref={scrollRef} className={`pdfv-scroll h-full w-full ${props.darkPages ? "pdfv-dark" : ""}`} tabIndex={0} role="region" aria-label="NCERT chapter PDF">
       {status === "idle" && <p className="p-6 text-sm text-muted">Choose a chapter PDF to start.</p>}
-      {status === "loading" && <p className="p-6 text-sm text-muted" role="status">Loading PDF…</p>}
-      {status === "error" && <p className="p-6 text-sm text-bad" role="alert">Could not open this PDF.</p>}
+      {status === "loading" && sizes.length === 0 && (
+        <div className="pdfv-loading" role="status" aria-label="Loading PDF pages">
+          <span className="sr-only">Loading PDF pages…</span>
+          {[0, 1, 2].map((page) => <div key={page} className="pdfv-loading-page" style={{ width: Math.min(Math.max(boxW - 2 * PAD, 240), 720) }} aria-hidden="true" />)}
+        </div>
+      )}
+      {status === "error" && (
+        <div className="pdfv-load-error" role="alert">
+          <p>Could not open this PDF.</p>
+          <button type="button" className="pdfv-retry" onClick={props.onRetry}>Try again</button>
+        </div>
+      )}
       <div style={{ width: Math.max(boxW, pageW + 2 * PAD), paddingTop: PAD, paddingBottom: PAD }}>
         {sizes.map((s, i) => (
-          <div key={i} ref={(n) => { wrapRefs.current[i] = n; }} className="pdfv-page" data-page={i + 1}
+          <div key={i} ref={(n) => { wrapRefs.current[i] = n; }} className="pdfv-page pdfv-page--pending" data-page={i + 1}
             style={{ width: s.w * scale, height: s.h * scale }} />
         ))}
       </div>
