@@ -9,7 +9,7 @@ type Props = {
   initial: { display_name: string; class: string | null; neet_year: number | null; daily_goal: number };
 };
 
-const field = "mt-1 h-11 w-full rounded-xl border border-line bg-field px-3 text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-ring";
+const field = "mt-1 h-11 w-full rounded-xl border border-control-border bg-field px-3 text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-ring";
 
 export function ProfileForm({ mode, years, initial }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveProfile, {});

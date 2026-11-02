@@ -311,18 +311,26 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
                 <button className={btn} disabled={focusIdx === 0} onClick={() => setFocusIdx((i) => i - 1)}>Previous</button>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-ink-2" aria-live="polite">Question {focusIdx + 1} of {qs.length}</span>
-                  <ol aria-label="Question progress" className="flex gap-1">
+                  <ol aria-label="Question progress" className="flex items-center gap-1">
                     {qs.map((q, i) => {
                       const answer = states[q.id];
-                      const status = answer?.checked
-                        ? isCorrect(answer.chosen, q.payload.correct) ? "answered correctly" : "answered incorrectly"
-                        : "not answered";
+                      const correct = Boolean(answer?.checked && isCorrect(answer.chosen, q.payload.correct));
+                      const incorrect = Boolean(answer?.checked && !correct);
+                      const status = correct ? "answered correctly" : incorrect ? "answered incorrectly" : "not answered";
+                      const current = i === focusIdx;
                       return (
                         <li key={q.id}>
-                          <span aria-current={i === focusIdx ? "step" : undefined}
-                            className={`block size-2 rounded-full ${i === focusIdx ? "bg-brand" : answer?.checked ? (isCorrect(answer.chosen, q.payload.correct) ? "bg-good" : "bg-bad") : "bg-line"}`}>
-                            <span className="sr-only">{`Question ${i + 1}: ${i === focusIdx ? "current, " : ""}${status}`}</span>
-                          </span>
+                          <button type="button" aria-current={current ? "step" : undefined}
+                            aria-label={`Go to question ${i + 1}, ${current ? "current, " : ""}${status}`}
+                            title={`Question ${i + 1}: ${status}`} onClick={() => setFocusIdx(i)}
+                            className={`grid size-6 place-items-center rounded-full border text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ring ${
+                              current ? "border-brand bg-brand-soft text-brand-text" :
+                              correct ? "border-good bg-good-soft text-good" :
+                              incorrect ? "border-bad bg-bad-soft text-bad" :
+                              "border-line bg-surface text-muted"
+                            }`}>
+                            {correct ? "✓" : incorrect ? "×" : current ? String(i + 1) : "•"}
+                          </button>
                         </li>
                       );
                     })}
@@ -370,7 +378,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
             <button className={btn} onClick={() => viewer.current?.scrollToPage(page + 1)} disabled={page >= total || !hasSource} aria-label="Next page">›</button>
           </div>
           <input value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
-            aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-24 rounded-lg border border-line bg-field px-2 text-xs" />
+            aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-24 rounded-lg border border-control-border bg-field px-2 text-xs" />
           <div className="flex items-center gap-1" role="group" aria-label="PDF zoom">
             <button className={btn} onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} aria-label="Zoom out">−</button>
             <span className="w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
@@ -399,9 +407,9 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
         <span>A PDF page could not be displayed.</span>
         <button type="button" className="rounded-md border border-current px-2 py-1 font-medium" onClick={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }}>Reload PDF</button>
       </div>}
-      <div className="flex border-b border-line lg:hidden" role="tablist" aria-label="Panels">
+      <div className="flex border-b border-line lg:hidden" role="group" aria-label="Study panels">
         {(["read", "practise"] as const).filter((t) => t !== "read" || showViewer).map((t) => (
-          <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
+          <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
         ))}
       </div>
       <div

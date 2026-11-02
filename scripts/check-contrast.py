@@ -44,6 +44,8 @@ PAIRS = [
     ("L ink on field", "#0F172A", "#EEF2F7", 4.5),
     ("L brand-ring on canvas", "#3B82F6", "#F8FAFC", 3.0),
     ("L brand-ring on surface", "#3B82F6", "#FFFFFF", 3.0),
+    ("L control border on field", "#64748B", "#EEF2F7", 3.0),
+    ("L control border on surface", "#64748B", "#FFFFFF", 3.0),
     # Dark theme
     ("D ink on canvas", "#E8EEF9", "#0B1120", 4.5),
     ("D ink on surface", "#E8EEF9", "#101A2C", 4.5),
@@ -67,6 +69,8 @@ PAIRS = [
     ("D bad on surface", "#F87171", "#101A2C", 4.5),
     ("D good on canvas", "#4ADE80", "#0B1120", 4.5),
     ("D bad on canvas", "#F87171", "#0B1120", 4.5),
+    ("D control border on field", "#64748B", "#1B2942", 3.0),
+    ("D control border on surface", "#64748B", "#101A2C", 3.0),
     ("D brand-ring on canvas", "#60A5FA", "#0B1120", 3.0),
     ("D brand-ring on surface", "#60A5FA", "#101A2C", 3.0),
 ]

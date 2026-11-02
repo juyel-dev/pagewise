@@ -36,9 +36,11 @@ The values below are read from `src/app/globals.css` and are documented here as 
 | Good | `#15803d` | `#4ade80` |
 | Bad | `#b91c1c` | `#f87171` |
 
-## Documentation discrepancy
+## Documentation discrepancy and closeout resolution
 
-`docs/frontend/01-design-foundations.md` still documents an emerald primary brand and older light/dark neutral values. Its current wording is not consistent with the shipped CSS. This PR deliberately does not rewrite that broader design document or invent a new brand decision; the discrepancy is recorded for a later explicit design-spec reconciliation.
+At the time of the Day 6 audit, `docs/frontend/01-design-foundations.md` still documented an emerald primary brand and older light/dark neutral values. The final closeout branch subsequently reconciled that document with the shipped slate/blue palette and clarified the distinction between `field` fills, decorative `line` borders and `control-border` boundaries.
+
+The final closeout also extended the contrast guard to 45 pairs and added the four input-control boundary combinations. See `docs/frontend/04-ui-closeout-2026-11-02.md` for the full final change record.
 
 The PDF viewer's white paper surface and its dark-mode PDF filter are document-rendering behavior, not an app-wide surface token. Official Google marks and the PDF badge's red color are also intentional third-party/content colors, not theme-token drift.
 
