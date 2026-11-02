@@ -309,9 +309,25 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
                 onPick={(i) => pick(cur, i)} onCheck={() => check(cur)} onRetry={() => retry(cur)} onBookmark={() => bookmark(cur)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
               <div className="flex items-center justify-between">
                 <button className={btn} disabled={focusIdx === 0} onClick={() => setFocusIdx((i) => i - 1)}>Previous</button>
-                <span className="flex gap-1" aria-hidden>{qs.map((q, i) => (
-                  <span key={q.id} className={`size-2 rounded-full ${i === focusIdx ? "bg-brand" : states[q.id]?.checked ? (isCorrect(states[q.id].chosen, q.payload.correct) ? "bg-good" : "bg-bad") : "bg-line"}`} />
-                ))}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-ink-2" aria-live="polite">Question {focusIdx + 1} of {qs.length}</span>
+                  <ol aria-label="Question progress" className="flex gap-1">
+                    {qs.map((q, i) => {
+                      const answer = states[q.id];
+                      const status = answer?.checked
+                        ? isCorrect(answer.chosen, q.payload.correct) ? "answered correctly" : "answered incorrectly"
+                        : "not answered";
+                      return (
+                        <li key={q.id}>
+                          <span aria-current={i === focusIdx ? "step" : undefined}
+                            className={`block size-2 rounded-full ${i === focusIdx ? "bg-brand" : answer?.checked ? (isCorrect(answer.chosen, q.payload.correct) ? "bg-good" : "bg-bad") : "bg-line"}`}>
+                            <span className="sr-only">{`Question ${i + 1}: ${i === focusIdx ? "current, " : ""}${status}`}</span>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
                 <button className={btn} disabled={focusIdx >= qs.length - 1} onClick={() => setFocusIdx((i) => i + 1)}>Next</button>
               </div>
             </>

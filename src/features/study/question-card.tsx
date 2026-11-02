@@ -1,5 +1,6 @@
 "use client";
 import { isCorrect } from "@/lib/question-bank/format";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { QState, StudyQuestion } from "./types";
 
 const btn = "inline-flex h-9 items-center rounded-lg border border-line bg-surface px-3 text-sm text-ink hover:bg-surface-2 disabled:opacity-50";
@@ -49,7 +50,23 @@ export function QuestionCard({ q, index, total, state, bookmarked, review, onPic
             ? isAns ? "border-good bg-good-soft" : picked ? "border-bad bg-bad-soft" : "border-line"
             : picked ? "border-brand bg-brand-soft" : "border-line hover:bg-surface-2";
           return (
-            <button key={oi} type="button" role={multi ? "checkbox" : "radio"} aria-checked={picked} disabled={reveal} onClick={() => onPick?.(oi)}
+            <button key={oi} type="button" role={multi ? "checkbox" : "radio"} aria-checked={picked}
+              tabIndex={multi ? undefined : (picked || (chosen.length === 0 && oi === 0) ? 0 : -1)}
+              disabled={reveal} onClick={() => onPick?.(oi)}
+              onKeyDown={(event: ReactKeyboardEvent<HTMLButtonElement>) => {
+                if (multi || reveal) return;
+                const key = event.key;
+                if (![ "ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End" ].includes(key)) return;
+                const group = event.currentTarget.parentElement;
+                const options = group ? Array.from(group.querySelectorAll<HTMLButtonElement>('[role="radio"]:not(:disabled)')) : [];
+                const current = options.indexOf(event.currentTarget);
+                if (current < 0 || options.length === 0) return;
+                event.preventDefault();
+                const next = key === "Home" ? 0 : key === "End" ? options.length - 1
+                  : (current + (key === "ArrowRight" || key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+                options[next].focus();
+                options[next].click();
+              }}
               className={`block w-full whitespace-pre-line rounded-lg border px-3 py-2 text-left text-sm text-ink ${tone}`}>
               <span className="mr-2 font-medium">{"ABCDEFGH"[oi]}.</span>{o}
               {reveal && isAns && <span className="ml-2 font-medium text-good">✓ {review ? "Correct" : "Correct answer"}</span>}
