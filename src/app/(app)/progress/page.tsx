@@ -12,7 +12,7 @@ const STUDY_TIME_ZONE = "Asia/Kolkata";
 export default async function ProgressPage() {
   const s = await getSession();
   const supabase = await createClient();
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data } = s
     ? await supabase.from("attempts").select("created_at, is_correct").eq("user_id", s.user.id).gte("created_at", since).order("created_at", { ascending: false })
     : { data: [] as AttemptRow[] };
