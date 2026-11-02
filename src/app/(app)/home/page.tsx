@@ -147,8 +147,9 @@ export default async function HomePage() {
   const totalPages = chapters.reduce((n, c) => n + (c.page_count ?? 0), 0);
   const progressByChapter = new Map(rows.map((r) => [r.chapter_id, r]));
   const pagesSeen = chapters.reduce((sum, chapter) => {
+    if (!chapter.page_count || chapter.page_count < 1) return sum;
     const seen = new Set((progressByChapter.get(chapter.id)?.pages_seen ?? [])
-      .filter((page) => page > 0 && (!chapter.page_count || page <= chapter.page_count)));
+      .filter((page) => page > 0 && page <= chapter.page_count!));
     return sum + seen.size;
   }, 0);
   const attempted = attempts.length;
@@ -161,7 +162,7 @@ export default async function HomePage() {
   const resumeCh = resume?.chapter_id ? chapters.find((c) => c.id === resume.chapter_id) : undefined;
   const recent = validRows.slice(0, 3);
   const chaptersStarted = new Set(validRows.map((r) => r.chapter_id)).size;
-  const overallPct = totalPages > 0 ? Math.min(100, Math.round((pagesSeen.size / totalPages) * 100)) : 0;
+  const overallPct = totalPages > 0 ? Math.min(100, Math.round((pagesSeen / totalPages) * 100)) : 0;
 
   const goal = s.profile?.daily_goal ?? 20;
   const answeredToday = Math.min(answeredTodayIn(attempts), goal);
@@ -188,7 +189,7 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Tile icon={BookOpen} tint="bg-brand-soft text-brand-text" label="Total Chapters" value={String(totalChapters)} />
-          <Tile icon={BookOpen} tint="bg-good-soft text-good" label="Pages Studied" value={totalPages > 0 ? `${pagesSeen.size} / ${totalPages}` : "0"} />
+          <Tile icon={BookOpen} tint="bg-good-soft text-good" label="Pages Studied" value={totalPages > 0 ? `${pagesSeen} / ${totalPages}` : "0"} />
           <Tile icon={Target} tint="bg-accent-soft text-accent" label="Questions Attempted" value={String(attempted)} />
           <Tile icon={BarChart3} tint="bg-accent-soft text-accent" label="Accuracy" value={accuracy === null ? "—" : `${accuracy}%`} />
         </div>
