@@ -4,17 +4,31 @@ import { getSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Progress" };
 
+type AttemptRow = { created_at: string; is_correct: boolean };
 type StatsRow = { day: string; answered: number; correct: number };
+const STUDY_TIME_ZONE = "Asia/Kolkata";
 
-/** Real overview from daily_stats (no invented streaks or leaderboards). */
+/** Build the last 30 days from saved attempts; daily_stats has no writer yet. */
 export default async function ProgressPage() {
   const s = await getSession();
   const supabase = await createClient();
-  const { data } = await supabase.from("daily_stats").select("day, answered, correct").order("day", { ascending: false }).limit(30);
-  const rows = ((data ?? []) as StatsRow[]).slice();
-  const answered = rows.reduce((n, r) => n + r.answered, 0);
-  const correct = rows.reduce((n, r) => n + r.correct, 0);
-  const active = rows.filter((r) => r.answered > 0).length;
+  const since = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = s
+    ? await supabase.from("attempts").select("created_at, is_correct").eq("user_id", s.user.id).gte("created_at", since).order("created_at", { ascending: false })
+    : { data: [] as AttemptRow[] };
+  const attempts = (data ?? []) as AttemptRow[];
+  const byDay = new Map<string, StatsRow>();
+  for (const attempt of attempts) {
+    const day = new Intl.DateTimeFormat("en-CA", { timeZone: STUDY_TIME_ZONE }).format(new Date(attempt.created_at));
+    const row = byDay.get(day) ?? { day, answered: 0, correct: 0 };
+    row.answered += 1;
+    if (attempt.is_correct) row.correct += 1;
+    byDay.set(day, row);
+  }
+  const rows = [...byDay.values()].sort((a, b) => b.day.localeCompare(a.day));
+  const answered = attempts.length;
+  const correct = attempts.filter((a) => a.is_correct).length;
+  const active = rows.length;
   const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : null;
 
   return (
