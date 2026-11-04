@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { SubjectPicker } from "./subject-picker";
+import { GuestStudyProgress } from "@/features/local/guest-study-progress";
+import { StudyHubFallback } from "@/features/study/study-fallback";
 import {
   attemptSummary, CLASSES, SUBJECTS, pairKey, progressOf, resolveSelection,
   type HubBookRow, type HubProgressRow,
@@ -17,7 +20,15 @@ type Row = {
 };
 const cta = "inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-hover";
 
-export default async function StudyHubPage({ searchParams }: SearchParams) {
+export default function StudyHubPage({ searchParams }: SearchParams) {
+  return (
+    <Suspense fallback={<StudyHubFallback />}>
+      <StudyHub searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function StudyHub({ searchParams }: SearchParams) {
   const [s, sp] = await Promise.all([getSession(), searchParams]);
   const guest = !s;
   const staff = s?.profile?.role === "admin" || s?.profile?.role === "reviewer";
@@ -90,12 +101,14 @@ export default async function StudyHubPage({ searchParams }: SearchParams) {
         {guest && (
           <section aria-label="Guest mode" className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-line bg-surface p-4">
             <p className="min-w-0 flex-1 text-sm text-ink-2">
-              <span className="font-medium text-ink">Guest mode.</span> You can read every page and try the first 2 questions
-              on each. Sign in with Google to keep your progress, bookmarks and attempts.
+              <span className="font-medium text-ink">Guest mode — everything is free.</span> Read every page and practise every question,
+              no account needed. Your progress and bookmarks stay in this browser; sign in to sync them across devices.
             </p>
-            <Link href="/sign-in?next=%2Fstudy" className={cta}>Sign in with Google</Link>
+            <Link href="/sign-in?next=%2Fstudy" className={cta}>Sign in to sync</Link>
           </section>
         )}
+
+        {guest && <GuestStudyProgress />}
 
         {!guest && resume && resumeRow && resumeProgress && (
           <section aria-labelledby="continue-h" className="rounded-2xl border border-line bg-surface p-4">

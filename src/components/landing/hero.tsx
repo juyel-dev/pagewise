@@ -18,7 +18,7 @@ export function Hero() {
               Continue with Google
             </ButtonLink>
           </div>
-          <p className="mt-4 text-sm text-muted">Your progress. Your pace. Your NEET. · <Link href="/study" className="font-medium text-brand-text underline underline-offset-2">Explore as a guest</Link></p>
+          <p className="mt-4 text-sm text-ink-2"><span className="font-medium text-ink">Free for every NEET aspirant</span> — no paywall. <Link href="/study" className="font-medium text-brand-text underline underline-offset-2">Explore as a guest</Link>, and sign in only when you want your progress synced.</p>
         </div>
         <div className="mt-10 flex justify-center pb-10 sm:mt-14 sm:pb-16"><BookIllustration /></div>
       </Container>

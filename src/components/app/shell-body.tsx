@@ -3,6 +3,7 @@ import { AppGate } from "@/components/app/gate";
 import { AppShell } from "@/components/app/app-shell";
 import { UserMenu } from "@/components/app/user-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LocalSync } from "@/features/sync/local-sync";
 import { getSession } from "@/lib/auth/session";
 
 /**
@@ -13,6 +14,7 @@ export default async function ShellBody({ children, mainClassName }: { children:
   const s = await getSession();
   return (
     <AppShell guest={!s} right={<><ThemeToggle /><UserMenu /></>}>
+      {s && <LocalSync />}
       <main id="main" className={mainClassName}>
         <AppGate>{children}</AppGate>
       </main>

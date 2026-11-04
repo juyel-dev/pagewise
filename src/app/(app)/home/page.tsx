@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Atom, BarChart3, BookOpen, Bookmark, FlaskConical, Leaf, Target, type LucideIcon } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { brand } from "@/config/brand";
+import { GuestHomePanel } from "@/features/local/guest-home-panel";
 import { progressOf, type HubProgressRow } from "@/features/study/hub";
 import { getSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -107,24 +108,14 @@ export default async function HomePage() {
   const s = await getSession();
 
   if (!s) {
-    // Guests keep the honest no-account home (decisions 28–29) inside the new shell.
+    // Guests get the same home shell with real local data (decision 38).
     return (
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold text-ink">Welcome to {brand.name}</h1>
-          <p className="mt-1 max-w-prose text-sm text-ink-2">Read the NCERT page and practise exam-style questions from that exact page. You are browsing as a guest — nothing is saved yet.</p>
+          <p className="mt-1 max-w-prose text-sm text-ink-2">Read the NCERT page and practise exam-style questions from that exact page. You are browsing as a guest — everything is free and your work stays in this browser.</p>
         </div>
-        <section aria-label="Get started" className={cn(card, "p-6")}>
-          <h2 className="text-lg font-semibold text-ink">Two ways to start</h2>
-          <ul className="mt-2 max-w-prose space-y-1.5 text-sm text-ink-2">
-            <li>Keep exploring as a guest: read every page, try the first 2 questions on each.</li>
-            <li>Sign in with Google when you want bookmarks, reading progress and attempts saved.</li>
-          </ul>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <ButtonLink href="/sign-in?next=%2Fhome">Sign in with Google</ButtonLink>
-            <ButtonLink href="/study" variant="secondary">Start studying</ButtonLink>
-          </div>
-        </section>
+        <GuestHomePanel />
       </div>
     );
   }

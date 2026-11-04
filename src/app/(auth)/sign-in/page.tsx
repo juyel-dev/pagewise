@@ -21,7 +21,8 @@ export default function SignInPage() {
           </svg>
         </span>
         <h1 className="mt-4 text-2xl font-semibold text-ink">Sign in</h1>
-        <p className="mt-1 text-sm text-ink-2">Continue to {brand.name}</p>
+        <p className="mt-1 text-sm text-ink-2">Optional — everything is free without an account.</p>
+        <p className="mt-2 text-xs leading-5 text-muted">Sign in only when you want your progress, answers and bookmarks synced across devices.</p>
         <Suspense fallback={<div className="mt-6 h-32 animate-pulse rounded-2xl bg-surface-2" />}>
           <div className="mt-6"><SignInForm /></div>
         </Suspense>

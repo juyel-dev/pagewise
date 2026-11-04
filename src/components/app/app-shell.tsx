@@ -92,7 +92,7 @@ export function AppShell({ guest, right, children }: Props) {
             className="flex h-10 items-center justify-center rounded-xl bg-brand text-sm font-medium text-white transition-colors hover:bg-brand-hover">
             Sign in with Google
           </Link>
-          <p className="mt-2 px-1 text-[11px] leading-4 text-muted">Guests can browse everything; signing in keeps your progress.</p>
+          <p className="mt-2 px-1 text-[11px] leading-4 text-muted">Everything is free. Guest progress stays in this browser; sign in to sync it.</p>
         </div>
       ) : (
         <div className="mx-3 mb-3 rounded-2xl bg-surface-2/70 px-3 py-3">

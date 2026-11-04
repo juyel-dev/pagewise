@@ -57,7 +57,7 @@ Explicitly **not needed**: any new schema for subjects/questions/progress (0001�
 | 4 Viewer & nav | ✅ reuse pdf-viewer + workspace nav; replace only gaps |
 | 5 Printed mapping | ✅ reuse `page_map`; add UI verification (label on page indicator) |
 | 6 Question panel | ✅ reuse workspace panel (+ guest limit intact) |
-| 7 Progress tracking | ✅ reuse saves (sign-in gated) + new dashboard readouts; guests = session-only per §3 proposal |
+| 7 Progress tracking | ✅ reuse saves + dashboard readouts; guests keep bookmarks/progress/attempts in IndexedDB and sync on sign-in (decision 38) |
 | 8 Day/Night | 🟡 verification matrix (bio/phy/chem figures, equations) then final behaviour |
 | 9–10 Testing | desktop + mobile pass; three subjects end-to-end (content-permitting) |
 
@@ -66,6 +66,6 @@ Explicitly **not needed**: any new schema for subjects/questions/progress (0001�
 ## 6. Build status — first pass complete (2026-10-30)
 
 - §5 rows 2–7 done: `/study` hub (subject×class chips with URL params + `profiles.prefs` save via `setStudyPrefs`), Continue Studying, Recent Chapters, per-chapter progress/attempt stats, honest empty states; `/library` → redirects to `/study`; nav + all links migrated; "Invert pages" label; upload dedupe (`pdf_sha256` compare, ruling (c)).
-- Guest rulings intact: no DB writes for guests (36a); the hub's guest banner offers sign-in only.
+- Guest data (2026-11-03, decision 38): signed-out visitors write nothing to Supabase, but bookmarks, reading progress and attempts persist in the browser's IndexedDB and merge into the account after sign-in. The earlier 2-questions-per-page limit (decision 29) is gone.
 - Content (2026-10-31): Ch-02 `Biological Classification` published — 232 questions + NCERT PDF (13 pages) live, chapter `live` (owner approved the publish pass). Biology · 11 now has 2 fully live chapters (171 + 232 published questions); PDFs for Physics/Chemistry remain the §12 steps 9–10 unlock.
 - Pending: §10 Day/Night verification matrix and steps 9–10 (desktop/mobile + three-subject E2E) need Physics/Chemistry content to be meaningful.

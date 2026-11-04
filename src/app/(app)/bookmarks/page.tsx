@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
+import { GuestBookmarks } from "@/features/local/guest-bookmarks";
 import { getSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,12 +17,13 @@ type Row = {
 };
 type Item = { id: string; page: number; chapter: { slug: string; title: string } | null; stem: string; at: string };
 
-/** Real bookmark list (question → chapter + PDF page); removing stays in the workspace for now. */
+/** Signed-in bookmarks come from the account; guests read this browser's IndexedDB copy. */
 export default async function BookmarksPage() {
   const s = await getSession();
-  const supabase = await createClient();
   let items: Item[] = [];
+
   if (s) {
+    const supabase = await createClient();
     const { data } = await supabase
       .from("bookmarks")
       .select("question_id, created_at, questions(pdf_page, chapters(slug, title), current:question_versions!questions_current_version_fk(payload))")
@@ -43,9 +45,11 @@ export default async function BookmarksPage() {
           Questions you saved while practising. Open the exact PDF page they belong to; the question waits there for you.
         </p>
       </div>
-      {items.length === 0 ? (
+      {!s ? (
+        <GuestBookmarks />
+      ) : items.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line bg-surface p-6 text-sm text-ink-2">
-          Nothing saved yet{s ? "" : " — sign in to keep bookmarks"}. Bookmark questions in the chapter workspace and they collect here.
+          Nothing saved yet. Bookmark questions in the chapter workspace and they collect here.
         </p>
       ) : (
         <ul className="grid gap-3">

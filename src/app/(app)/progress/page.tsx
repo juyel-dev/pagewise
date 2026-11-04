@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GuestProgress } from "@/features/local/guest-progress";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth/session";
 
@@ -11,11 +12,22 @@ const STUDY_TIME_ZONE = "Asia/Kolkata";
 /** Build the last 30 days from saved attempts; daily_stats has no writer yet. */
 export default async function ProgressPage() {
   const s = await getSession();
+
+  if (!s) {
+    return (
+      <div className="space-y-5">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink">Progress</h1>
+          <p className="mt-1 text-sm text-ink-2">Your answers, day by day — kept in this browser until you choose to sync.</p>
+        </div>
+        <GuestProgress />
+      </div>
+    );
+  }
+
   const supabase = await createClient();
   const since = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = s
-    ? await supabase.from("attempts").select("created_at, is_correct").eq("user_id", s.user.id).gte("created_at", since).order("created_at", { ascending: false })
-    : { data: [] as AttemptRow[] };
+  const { data } = await supabase.from("attempts").select("created_at, is_correct").eq("user_id", s.user.id).gte("created_at", since).order("created_at", { ascending: false });
   const attempts = (data ?? []) as AttemptRow[];
   const byDay = new Map<string, StatsRow>();
   for (const attempt of attempts) {
@@ -54,7 +66,7 @@ export default async function ProgressPage() {
 
       {rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line bg-surface p-6 text-sm text-ink-2">
-          No attempts recorded yet{s ? "" : " — and guests are not saved"}. Answers show up here after you practise a page.
+          No attempts recorded yet. Answers show up here after you practise a page.
         </p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-surface">

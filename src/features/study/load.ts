@@ -3,12 +3,9 @@ import type { QuestionPayload, QuestionType } from "@/lib/question-bank/format";
 import { createClient } from "@/lib/supabase/server";
 import type { PageMapRow, StudyChapter, StudyQuestion } from "./types";
 
-/** Guests see only this many questions per page (decision 29). */
-const GUEST_LIMIT = 2;
-
 export type StudyData = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
-  questionsByPage: Record<string, StudyQuestion[]>; pageTotal: Record<string, number>;
+  questionsByPage: Record<string, StudyQuestion[]>;
   initialPage: number; seenPages: number[]; bookmarkedIds: string[];
   guest: boolean;
 };
@@ -16,7 +13,7 @@ export type StudyData = {
 type QRow = { id: string; pdf_page: number; type: QuestionType; difficulty: StudyQuestion["difficulty"]; status: string; current: { id: string; payload: QuestionPayload } | { id: string; payload: QuestionPayload }[] | null };
 
 export async function loadStudy(slug: string, opts: { p?: string; review: boolean }): Promise<StudyData | null> {
-  const s = await getSession(); // null = guest; guests read published content (decisions 28–29)
+  const s = await getSession(); // null = guest; guests read published content (decision 38)
   const role = s?.profile?.role;
   const staff = role === "admin" || role === "reviewer";
   if (opts.review && !staff) return null;
@@ -36,18 +33,12 @@ export async function loadStudy(slug: string, opts: { p?: string; review: boolea
     qQuery,
   ]);
 
-  // Group per page before limiting. pageTotal keeps the full count so the UI can show an
-  // honest "N more after sign-in" chip for guests (locked rows are never sent to them).
+  // Every published question is sent to guests too — sign-in is optional (decision 38).
   const grouped: Record<string, StudyQuestion[]> = {};
-  const pageTotal: Record<string, number> = {};
   for (const r of (qs.data ?? []) as unknown as QRow[]) {
     const cur = Array.isArray(r.current) ? r.current[0] : r.current;
     if (!cur) continue;
     (grouped[String(r.pdf_page)] ??= []).push({ id: r.id, version_id: cur.id, type: r.type, difficulty: r.difficulty, status: r.status, payload: cur.payload });
-  }
-  for (const [p, list] of Object.entries(grouped)) {
-    pageTotal[p] = list.length;
-    if (guest && list.length > GUEST_LIMIT) grouped[p] = list.slice(0, GUEST_LIMIT);
   }
 
   let prog: { data: { last_page: number | null; pages_seen: number[] | null } | null } = { data: null };
@@ -70,7 +61,7 @@ export async function loadStudy(slug: string, opts: { p?: string; review: boolea
   return {
     chapter: { id: ch.id, slug: ch.slug, title: ch.title, pageCount: count, status: ch.status, unit: ch.unit_title ?? null, pdfSha256: ch.pdf_sha256 ?? null },
     pageMap: (pm.data ?? []) as PageMapRow[], pdfUrl, isAdmin: role === "admin", review: opts.review,
-    questionsByPage: grouped, pageTotal,
+    questionsByPage: grouped,
     initialPage: Math.min(Math.max(1, want), count),
     seenPages: prog.data?.pages_seen ?? [], bookmarkedIds: (bms.data ?? []).map((b) => b.question_id as string),
     guest,

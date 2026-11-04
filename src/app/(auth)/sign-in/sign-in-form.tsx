@@ -42,7 +42,7 @@ export function SignInForm() {
         <p className="rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-2">Google sign-in is being set up. For now, continue as a guest.</p>
       )}
       <div className="flex items-center gap-3 text-xs text-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
-      <ButtonLink href={guestHref} variant="secondary" className="h-11 w-full text-base">Continue as guest</ButtonLink>
+      <ButtonLink href={guestHref} variant="secondary" className="h-11 w-full text-base">Continue without an account</ButtonLink>
       {message && <p role="alert" className="text-sm text-bad">{message}</p>}
     </div>
   );

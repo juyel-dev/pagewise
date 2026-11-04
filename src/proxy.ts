@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { redirectWithCookies, updateSession } from "./lib/supabase/proxy";
 
-const PROTECTED = /^\/(onboarding|progress|bookmarks|settings|review|admin)(\/|$)/;
+// Progress and bookmarks are local-first for guests (decision 38); only account/staff areas need sign-in.
+const PROTECTED = /^\/(onboarding|settings|review|admin)(\/|$)/;
 
 export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);

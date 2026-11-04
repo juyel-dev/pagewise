@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { PdfViewer, type PdfViewerHandle } from "@/components/viewer/pdf-viewer";
+import { addLocalAttempt, listLocalBookmarks, saveLocalBookmark, saveLocalProgress, removeLocalBookmark } from "@/lib/local/store";
 import { isCorrect } from "@/lib/question-bank/format";
 import { createClient } from "@/lib/supabase/client";
 import { setQuestionStatus } from "../review/actions";
@@ -30,17 +31,18 @@ function splitBounds(width: number, swap: boolean) {
 
 type Props = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
-  questionsByPage: Record<string, StudyQuestion[]>; pageTotal?: Record<string, number>;
+  questionsByPage: Record<string, StudyQuestion[]>;
   initialPage: number; seenPages: number[]; bookmarkedIds: string[];
   guest?: boolean;
 };
 
-export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, questionsByPage, pageTotal, initialPage, seenPages, bookmarkedIds, guest = false }: Props) {
+export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, questionsByPage, initialPage, seenPages, bookmarkedIds, guest = false }: Props) {
   const router = useRouter();
   const viewer = useRef<PdfViewerHandle>(null);
   const [localData, setLocalData] = useState<ArrayBuffer | null>(null);
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState(0);
+  const [viewerReady, setViewerReady] = useState(false);
   const [page, setPage] = useState(initialPage);
   const [practicePage, setPracticePage] = useState<number | null>(null);
   const [mode, setMode] = useState<"focus" | "list">("focus");
@@ -118,14 +120,13 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   }
 
   const labelOf = useCallback((p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p), [pageMap]);
-  const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}`)}`;
+  const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}?p=${page}`)}`;
   const total = numPages || chapter.pageCount;
   const questionsFor = useCallback((p: number | null): StudyQuestion[] => (p ? questionsByPage[String(p)] ?? [] : []), [questionsByPage]);
   const hasAny = Object.values(questionsByPage).some((l) => l.length > 0);
   const here = questionsFor(page).length;
   const activePage = review ? page : practicePage;
   const qs = questionsFor(activePage);
-  const lockedHere = guest && activePage ? (pageTotal?.[String(activePage)] ?? 0) - qs.length : 0;
   const nextWithQ = useMemo(
     () => Object.keys(questionsByPage).map(Number).filter((p) => p > page && questionsByPage[String(p)].length > 0).sort((a, b) => a - b)[0],
     [questionsByPage, page],
@@ -134,6 +135,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const onReady = useCallback(({ doc }: { doc: { numPages: number } }) => {
     setNumPages(doc.numPages);
     readyRef.current = true;
+    setViewerReady(true);
     requestAnimationFrame(() => viewer.current?.scrollToPage(page || initialPage));
   }, [initialPage, page]);
   const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
@@ -145,14 +147,35 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   }, []);
 
   useEffect(() => {
-    if (!readyRef.current || review || guest) return; // guests: progress is not persisted (decision 28)
+    if (!readyRef.current || review) return;
     const url = new URL(window.location.href);
     url.searchParams.set("p", String(page));
     window.history.replaceState(null, "", url);
     seen.current.add(page);
-    const t = setTimeout(() => { void saveProgress({ chapterId: chapter.id, lastPage: page, pagesSeen: [...seen.current] }); }, 5000);
+    const t = setTimeout(() => {
+      if (guest) {
+        // Guests keep reading progress in this browser (decision 38).
+        void saveLocalProgress({
+          chapter_id: chapter.id, chapter_slug: chapter.slug, chapter_title: chapter.title,
+          page_count: total, last_page: page, pages_seen: [...seen.current],
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+      } else {
+        void saveProgress({ chapterId: chapter.id, lastPage: page, pagesSeen: [...seen.current] });
+      }
+    }, guest ? 800 : 5000);
     return () => clearTimeout(t);
-  }, [page, chapter.id, review, guest]);
+  }, [page, chapter.id, chapter.slug, chapter.title, total, review, guest, viewerReady]);
+
+  // Guests: hydrate bookmarks saved in this browser.
+  useEffect(() => {
+    if (!guest) return;
+    let alive = true;
+    void listLocalBookmarks()
+      .then((rows) => { if (alive && rows.length > 0) setBookmarks(new Set(rows.map((r) => r.question_id))); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [guest]);
 
   useEffect(() => {
     if (!follow || review) return;
@@ -189,10 +212,20 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     const st = states[q.id];
     if (!st || st.chosen.length === 0) return;
     setStates((s) => ({ ...s, [q.id]: { ...st, checked: true } }));
-    if (guest) return; // guests: attempts are not persisted (decision 28)
+    const ok = isCorrect(st.chosen, q.payload.correct);
+    const timeMs = nowMs() - (started.current[q.id] ?? nowMs());
+    if (guest) {
+      // Guests keep attempts locally; they sync after sign-in (decision 38).
+      void addLocalAttempt({
+        question_id: q.id, version_id: q.version_id, chapter_id: chapter.id,
+        chosen: st.chosen, is_correct: ok, attempt_no: st.attemptNo, time_ms: Math.max(0, timeMs),
+        source: "workspace", release: "local", created_at: new Date().toISOString(),
+      }).catch(() => setNotice("Your answer could not be saved in this browser."));
+      return;
+    }
     void recordAttempt({
-      questionId: q.id, versionId: q.version_id, chosen: st.chosen, isCorrect: isCorrect(st.chosen, q.payload.correct),
-      timeMs: nowMs() - (started.current[q.id] ?? nowMs()), attemptNo: st.attemptNo, release: "db", source: "workspace",
+      questionId: q.id, versionId: q.version_id, chosen: st.chosen, isCorrect: ok,
+      timeMs, attemptNo: st.attemptNo, release: "db", source: "workspace",
     }).then((r) => { if (!r.ok) setNotice("Your answer could not be saved. Check your connection."); });
   }
   function retry(q: StudyQuestion) {
@@ -200,9 +233,22 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     setStates((s) => ({ ...s, [q.id]: { chosen: [], checked: false, attemptNo: (s[q.id]?.attemptNo ?? 1) + 1 } }));
   }
   function bookmark(q: StudyQuestion) {
-    if (guest) { router.push(signInHref); return; } // sign in to save bookmarks (decision 28)
     const on = !bookmarks.has(q.id);
     setBookmarks((b) => { const n = new Set(b); if (on) n.add(q.id); else n.delete(q.id); return n; });
+    if (guest) {
+      // Guests keep bookmarks in this browser; they sync after sign-in (decision 38).
+      const task = on
+        ? saveLocalBookmark({
+            question_id: q.id, chapter_id: chapter.id, chapter_slug: chapter.slug, chapter_title: chapter.title,
+            page: activePage ?? page, stem: q.payload.question, created_at: new Date().toISOString(),
+          })
+        : removeLocalBookmark(q.id);
+      void task.catch(() => {
+        setBookmarks((b) => { const n = new Set(b); if (on) n.delete(q.id); else n.add(q.id); return n; });
+        setNotice("Could not update the bookmark in this browser.");
+      });
+      return;
+    }
     void toggleBookmark({ questionId: q.id, on }).then((r) => {
       if (!r.ok) { setBookmarks((b) => { const n = new Set(b); if (on) n.delete(q.id); else n.add(q.id); return n; }); setNotice("Could not update the bookmark."); }
     });
@@ -286,13 +332,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
       <p className="mt-2 text-xs text-muted" aria-live="polite">Reading: PDF page {page} · printed page {labelOf(page)}</p>
       {guest && !review && (
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-canvas px-3 py-2.5">
-          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2"><span className="font-medium text-ink">Guest mode.</span> You can try the first 2 questions on each page. Sign in to keep your progress, bookmarks and attempts.</p>
-          <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-hover">Sign in</Link>
-        </div>
-      )}
-      {lockedHere > 0 && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-line bg-surface-2 px-3 py-2.5">
-          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2">{lockedHere} more question{lockedHere === 1 ? "" : "s"} on this page — sign in to see {lockedHere === 1 ? "it" : "them"}.</p>
+          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2"><span className="font-medium text-ink">Guest mode — everything is free.</span> Every chapter and every question is open to you. Progress and bookmarks stay in this browser; sign in to sync them across devices.</p>
           <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-hover">Sign in</Link>
         </div>
       )}
