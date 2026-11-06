@@ -224,7 +224,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
       return;
     }
     void recordAttempt({
-      questionId: q.id, versionId: q.version_id, chosen: st.chosen, isCorrect: ok,
+      questionId: q.id, versionId: q.version_id, chosen: st.chosen,
       timeMs, attemptNo: st.attemptNo, release: "db", source: "workspace",
     }).then((r) => { if (!r.ok) setNotice("Your answer could not be saved. Check your connection."); });
   }

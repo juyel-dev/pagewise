@@ -1,3 +1,5 @@
-export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-export const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+import { env } from "@/lib/env";
+
+export const supabaseUrl = env.supabaseUrl;
+export const supabaseKey = env.supabaseKey;
 export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseKey);

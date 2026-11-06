@@ -64,7 +64,6 @@ export async function syncLocalData(input: LocalSnapshot): Promise<SyncResult> {
       question_id: a.question_id,
       version_id: a.version_id ?? null,
       chosen: a.chosen.slice(0, 8),
-      is_correct: Boolean(a.is_correct),
       time_ms: Math.min(Math.max(Math.round(Number(a.time_ms)) || 0, 0), 3_600_000),
       attempt_no: Math.min(Math.max(Math.round(Number(a.attempt_no)) || 1, 1), 1000),
       source: String(a.source ?? "sync").slice(0, 20),
@@ -104,6 +103,7 @@ export async function syncLocalData(input: LocalSnapshot): Promise<SyncResult> {
   }
 
   // 3. Attempts — append; duplicates by (question, attempt number) are ignored.
+  //    is_correct is set by the database (migration 0007); guest values are never trusted.
   if (attempts.length > 0) {
     for (const batch of chunk(attempts, 500)) {
       const { error } = await supabase.from("attempts").upsert(batch, { onConflict: "user_id,question_id,attempt_no", ignoreDuplicates: true });
