@@ -4,7 +4,7 @@
 
 A web app for NEET aspirants that puts an **NCERT page** and **exam-style practice questions from that exact page** side by side. Biology first, English first, laptop/desktop first. More languages, phone-first UX, Physics and Chemistry follow.
 
-> **PageWise is a placeholder name.** It lives in one file (`src/config/brand.ts`). Change it there and in `docs/` when the real name is chosen.
+> **PageWise is a placeholder name.** It lives in one file (`apps/web/src/config/brand.ts`). Change it there and in `docs/` when the real name is chosen.
 
 ## Status
 
@@ -23,17 +23,17 @@ See [`docs/README.md`](docs/README.md) for the full plan and build log.
 ## Run locally
 
 ```bash
-npm install
-npm run dev        # http://localhost:3000
-npm run lint
-npm run build && npm start
+npm install                 # installs every workspace
+npm run dev                 # student app, http://localhost:3000
+npm run typecheck && npm run lint && npm test
+npm run build
 ```
 
 Requires Node 20+ (developed on Node 22).
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local`. All are optional for the landing page.
+Copy `apps/web/.env.example` to `apps/web/.env.local`. All are optional for the landing page.
 
 | Variable | Purpose |
 |---|---|
@@ -42,14 +42,16 @@ Copy `.env.example` to `.env.local`. All are optional for the landing page.
 
 ## Deploy (Vercel)
 
-Import the repo in Vercel, keep the defaults (Framework: Next.js), add the env vars above, deploy. Details and caveats: [`docs/ops/01-deploy-vercel.md`](docs/ops/01-deploy-vercel.md).
+Import the repo in Vercel, set **Root Directory = `apps/web`** (Framework: Next.js), add the env vars above, deploy. Details and caveats: [`docs/ops/01-deploy-vercel.md`](docs/ops/01-deploy-vercel.md).
 
 ## Quality checks
 
 ```bash
+npm run typecheck
 npm run lint
+npm test
 npm run build
-python3 scripts/check-contrast.py   # WCAG contrast for every colour token pair, both themes
+npm run check:contrast   # WCAG contrast for every colour token pair, both themes
 ```
 
 ## Stack
@@ -59,18 +61,15 @@ Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind 
 ## Project structure
 
 ```
-src/
-  app/                 routes, layout, metadata, OG image, icon
-  components/
-    ui/                design-system primitives (Button, Container, Section)
-    landing/           landing-page sections
-  config/brand.ts      brand name, tagline, nav, env-driven config
-  lib/                 small utilities
-docs/                  product, frontend, architecture, ops documentation
+apps/web/              student app (Next.js). Admin app arrives as apps/admin (decision 39)
+  src/app/             routes only
+  src/features/<x>/    one module per feature (public surface = index.ts)
+  src/config/          registries: nav, home sections, brand
+  src/lib/             infrastructure (supabase, local store, auth)
+  src/components/ui/   design-system primitives
+packages/question-schema/   question format, validation, grading (shared, pure TS)
+supabase/              migrations (single source of truth)
+docs/                  product, architecture, ops. Start with blueprint/14
 ```
 
-## Important notes for contributors (human or AI)
-
-- This Next.js version differs from older ones. Read `AGENTS.md` and the bundled docs in `node_modules/next/dist/docs/` before writing framework code.
-- Never commit secrets. `.env*` files are git-ignored except `.env.example`.
-- Do not host or copy NCERT book content. See [`docs/product/03-content-and-legal-guardrails.md`](docs/product/03-content-and-legal-guardrails.md).
+Boundary rules are enforced by ESLint: `lib` and `ui` never import `features`; features import other features only through `index.ts`.

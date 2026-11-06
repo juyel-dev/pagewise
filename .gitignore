@@ -49,3 +49,8 @@ next-env.d.ts
 # AI/tooling artifacts (per machine)
 .agents/
 skills-lock.json
+
+# monorepo
+**/.next/
+**/public/pdfjs/
+*.tsbuildinfo

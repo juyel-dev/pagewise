@@ -4,7 +4,7 @@
 
 1. Push this repo to GitHub (private is fine).
 2. Go to **vercel.com → Add New → Project → Import** the repo.
-3. Framework preset: **Next.js** (auto-detected). Build command and output directory: leave defaults.
+3. Framework preset: **Next.js**. **Root Directory: `apps/web`** (the repo is a monorepo since decision 39). Build command and output directory: leave defaults.
 4. Environment variables (optional for now):
    - `NEXT_PUBLIC_WAITLIST_URL` (see [ops 02](02-waitlist-apps-script.md))
    - `NEXT_PUBLIC_SITE_URL` (your final domain, once you have one)
