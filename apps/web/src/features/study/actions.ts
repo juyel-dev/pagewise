@@ -11,15 +11,19 @@ async function authed() {
   return { supabase, user };
 }
 
+/**
+ * Saves an attempt. Correctness is NOT accepted from the client: the database trigger
+ * `attempts_grade` (migration 0007, decision 41) grades it from the stored question version.
+ */
 export async function recordAttempt(i: {
-  questionId: string; versionId: string; chosen: number[]; isCorrect: boolean; timeMs: number; attemptNo: number; release: string; source: string;
+  questionId: string; versionId: string; chosen: number[]; timeMs: number; attemptNo: number; release: string; source: string;
 }): Promise<Result> {
   if (!UUID.test(i.questionId) || !UUID.test(i.versionId) || !Array.isArray(i.chosen) || i.chosen.length < 1 || i.chosen.length > 8 || !i.chosen.every((n) => Number.isInteger(n) && n >= 0 && n <= 9)) return { ok: false };
   if (!Number.isInteger(i.attemptNo) || i.attemptNo < 1 || i.attemptNo > 50) return { ok: false };
   const { supabase, user } = await authed();
   if (!user) return { ok: false };
   const { error } = await supabase.from("attempts").insert({
-    user_id: user.id, question_id: i.questionId, version_id: i.versionId, chosen: i.chosen, is_correct: Boolean(i.isCorrect),
+    user_id: user.id, question_id: i.questionId, version_id: i.versionId, chosen: i.chosen,
     time_ms: Math.min(Math.max(Math.round(i.timeMs) || 0, 0), 3_600_000), attempt_no: i.attemptNo,
     source: String(i.source).slice(0, 20), release: String(i.release).slice(0, 40),
   });

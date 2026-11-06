@@ -3,7 +3,8 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { brand } from "@/config/brand";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+import { env } from "@/lib/env";
+const siteUrl = env.siteUrl;
 export const metadata: Metadata = {
  metadataBase: new URL(siteUrl),
  title: {default:`${brand.name} — NCERT page + NEET practice, side by side`,template:`%s · ${brand.name}`},

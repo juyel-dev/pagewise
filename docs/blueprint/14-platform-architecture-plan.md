@@ -110,9 +110,9 @@ A bug fix lands with the test that would have caught it.
 
 | Phase | Deliverable | Done when |
 |---|---|---|
-| F0 | This doc + decisions 39–42 | merged |
-| F1 | Monorepo: `apps/web`, `packages/question-schema`, typecheck fixed, CI updated | CI green; web deploys from `apps/web` |
-| F2 | Hardening: server-side grading, security headers/CSP, env module, error/loading/not-found, robots/sitemap/manifest | tests for grading; headers verified |
+| F0 | This doc + decisions 39–42 | **done** |
+| F1 | Monorepo: `apps/web`, `packages/question-schema`, typecheck fixed, CI updated | **done** (CI green; web deploys from `apps/web`) |
+| F2 | Hardening: server-side grading, security headers/CSP, env module, error/loading/not-found, robots/sitemap/manifest | **done**: grading trigger (migration 0007) with SQL tests in CI; headers; typed env; status pages; robots/sitemap/manifest. **Open:** CSP is report-only until nonces; rate limiting and Sentry follow |
 | F3 | `apps/admin`: Google + MFA gate, move `/review` and `/admin`, revalidate hook; remove from web | admin live; web has no staff routes |
 | F4 | Study workspace refactor (hooks, `StudyStore`) + PDF viewer optimisation | file < 200 lines per unit; mixed-size PDFs correct |
 | F5 | UI rebuild from the Design canvas **using repo tokens** (decision 34 palette) | screens match canvas layout, contrast green |
