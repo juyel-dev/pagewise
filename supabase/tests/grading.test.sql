@@ -2,7 +2,8 @@
 -- Builds a minimal stub schema, applies migration 0007, asserts grading behaviour (decision 41).
 \set ON_ERROR_STOP on
 create schema auth; create table auth.users(id uuid primary key);
-create role anon; create role authenticated;
+do $$ begin create role anon; exception when duplicate_object then null; end $$;
+do $$ begin create role authenticated; exception when duplicate_object then null; end $$;
 create table public.questions(id uuid primary key, current_version_id uuid);
 create table public.question_versions(id uuid primary key, question_id uuid not null references public.questions(id), payload jsonb not null);
 create table public.attempts (
