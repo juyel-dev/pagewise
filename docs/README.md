@@ -63,6 +63,7 @@ Planning is the product. These docs are written **before** each build step so th
 ### Decisions
 - [Decision log](decisions.md)
 - [Project status (living)](status.md)
+- [**Build-ready spec pack**](spec/README.md) — per-screen specs, components, navigation, data contracts (decision 47)
 
 ## Build log
 
