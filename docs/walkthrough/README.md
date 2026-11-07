@@ -23,7 +23,7 @@ Style shorthand: `bg:` fill token · `b:` border · `r:` radius px · `p:` paddi
 | 04 | `04-home.md` | Home `/home` | Draft |
 | 05 | `05-study-hub.md` | Study hub `/study` | Draft |
 | 06 | `06-study-workspace.md` | Study workspace `/study/[chapter]` | Draft |
-| 07 | — | Practice hub, chapter test (3 screens), review session | To write |
-| 08 | — | Progress, Bookmarks, Settings (4 tabs) | To write |
-| 09 | — | Search palette, Help, Legal (3), System pages | To write |
+| 07 | `07-practice.md` | Practice hub, setup, session (quick/test), result, review queue | Draft |
+| 08 | `08-progress-bookmarks-settings.md` | Progress, Bookmarks (+ missed), Settings (4 tabs) | Draft |
+| 09 | `09-search-help-legal-system.md` | Search palette, Help, Legal (3), System pages | Draft |
 | 10 | — | Admin console (9 screens) | To write |
