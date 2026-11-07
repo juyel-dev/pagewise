@@ -10,10 +10,11 @@ Update this file in any PR that changes the state. Last updated: **2026-11-07**.
 | Repo | npm-workspaces monorepo: `apps/web`, `packages/question-schema` (F1 done) |
 | Hardening | Server-side grading trigger live (migration 0007), security headers, typed env, error/404/loading, robots/sitemap/manifest (F2 done) |
 | Infrastructure | Supabase `pagewise` in `ap-south-1`; Vercel functions in `bom1`; SSO protection off (site is public) |
-| Planning | Docs 14–18 and the two-year plan written; decisions 39–46 logged |
+| Planning | Docs 14–18 and the two-year plan written; decisions 39–48 logged; **build-ready spec pack started in `docs/spec/`** (S05 Study workspace drafted) |
 
 ## Next, in order
 
+0. **Spec pack first (decision 47):** write screen specs S06, S07, S03/S04, S11–S13, S08–S10, S14–S16, A01–A09 (see `docs/spec/README.md` register). No screen is rebuilt before its spec is Ready.
 1. **H1 / F3:** build `apps/admin` per `blueprint/18` (spec approval first).
 2. **H1 / F4:** workspace refactor + PDF viewer speed (doc 16 §2 list).
 3. Sentry, Playwright smoke tests, rate limiting.
@@ -23,9 +24,11 @@ Update this file in any PR that changes the state. Last updated: **2026-11-07**.
 
 - Revoke any GitHub token that was pasted into chat; give a new short-lived one for the next session.
 - Confirm `pagewise-admin` is free as a Vercel project name when F3 starts (otherwise pick another).
-- Decide the production custom domain before H4.
-- Line up a lawyer for the DPDP / under-18 review before H4.
-- Recruit beta students before H3.
+- Hand over the NCERT permission document the day before production (owner is handling it).
+- Legal review (DPDP / under-18): owner is handling it, in progress.
+- Questions and their review: owner (decision 48).
+- Read `docs/spec/screens/S05-study-workspace.md` and mark it Ready or send changes.
+- Decide the production custom domain before H4; recruit beta students before H3.
 
 ## Known issues
 

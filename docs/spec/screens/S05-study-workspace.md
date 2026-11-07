@@ -191,7 +191,7 @@ Back: "← Study" · Progress: "{n} of {N} pages read" · Toolbar: "Previous pag
 
 ## 15. Implementation plan
 Each step is its own PR; tests listed in §14 are added with the step that satisfies them.
-1. **Pure logic + tests** (`features/study/`): `resolveInitialPage`, `nextPageWithQuestions`, `normaliseForMatch`, `findPassage`, `pageSummary`. (A3, 14 helpers)
+1. **Pure logic + tests** (`features/study/`): `resolveInitialPage`, `nextPageWithQuestions`, `normaliseForMatch`, `findPassage`, `pageSummary`. (tests 1–3, 13, 14)
 2. **`StudyStore`** interface with `LocalStore` and `RemoteStore`; remove `guest` branches from the workspace. (22, 23)
 3. **Hooks**: `useReadingProgress`, `usePracticeSession` (reducer for answers, retry, focus, summary), `useSplitPane`, `useWorkspaceShortcuts`, `useWorkspacePrefs`. Workspace file < 200 lines.
 4. **UI primitives** from `02-components.md`: SegmentedControl, Chip, Switch, IconButton, Skeleton, EmptyState, Toast, Dialog, Tabs.

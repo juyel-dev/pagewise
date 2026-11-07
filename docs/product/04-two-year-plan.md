@@ -6,12 +6,14 @@
 
 Claude writes the code. The things that gate a launch are slower and mostly owner-side:
 
-| Gate | Why it blocks | Owner action |
+| Gate | Why it blocks | Who handles it |
 |---|---|---|
-| Question bank throughput | A chapter is only useful with reviewed questions and a page map | Keep producing page files in `neet-pcb-question-bank`; reviewer capacity (doc 06) |
-| NCERT permission | Hosting PDFs needs authorization; attested, recorded in `docs/legal/ncert-permission.md` | Re-confirm scope before each new book (Class 12, Physics, Chemistry) |
-| Legal review (DPDP, under-18 users) | Launch gate in doc 07 | Book a lawyer before H4 starts |
-| Reviewer/beta students | Real feedback is the only honest quality test | Recruit before H3 |
+| Question bank throughput | A chapter is only useful with questions and a page map | **Owner** writes the questions and decides review and quality (decision 48); the admin app only has to make import and publish easy |
+| NCERT permission | Hosting PDFs needs authorization | **Owner** is handling it; the granted permission is handed over **on the day before production** and recorded in `docs/legal/ncert-permission.md` (decision 48) |
+| Legal review (DPDP, under-18 users) | Launch gate in doc 15 §6 | **Owner** is handling it; work is already in progress |
+| Beta students | Real feedback is the only honest quality test | Owner recruits before H3 |
+
+Claude's side of the critical path: be ready (plans, specs, code, tests, tooling) so none of these gates wait on engineering.
 
 Rule: code never runs ahead of content by more than one horizon.
 
@@ -41,11 +43,11 @@ Each row: **goal → deliverables → exit criteria.** Technical phases `F0–F6
 
 | Risk | Likelihood | Impact | Response |
 |---|---|---|---|
-| Content slower than code | High | High | Prioritise reviewer tooling (admin app) before new features |
-| NCERT permission scope changes | Low | Very high | Keep PDFs in private storage; app works with deep links as fallback (doc 09) |
+| Content slower than code | High | High | Owner-produced; make import and publish in the admin app fast; keep code from outrunning content by more than one horizon |
+| NCERT permission arrives late or with narrower scope | Low | Very high | Owner-managed; PDFs stay in private storage; a launch gate; app can launch with deep links as fallback (doc 09) |
 | Solo bandwidth | High | Medium | Small PRs, written plans, this doc as the single source of order |
 | Free-tier limits hit by growth | Medium | Medium | Thresholds and upgrade triggers in doc 16 |
-| Under-18 data compliance | Medium | Very high | Data minimisation now; consent flow and lawyer review before H4 |
+| Under-18 data compliance | Medium | Very high | Owner's legal work in progress; data minimisation now; consent flow built to the lawyer's advice before H4 |
 | Quality regressions from fast AI-assisted changes | Medium | High | CI gates, tests with every fix, boundaries enforced by lint (doc 14) |
 
 ## 5. Review cadence
