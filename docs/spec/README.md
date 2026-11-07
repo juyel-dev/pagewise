@@ -4,6 +4,8 @@
 
 **Why it exists (2026-11-07).** The earlier docs say *what* the product is and *how* the system is built, but not, screen by screen, which elements exist, how they look and behave, how they relate, and in what order to build them. That gap makes code the place where decisions get made. This pack closes it.
 
+**Visual source of truth:** `docs/walkthrough/` (decision 49). Each screen spec here defines behaviour, keys, analytics and tests; the matching walkthrough page defines how it looks, element by element. Where they differ, the walkthrough wins.
+
 ## Rules
 
 1. **Spec first.** A screen is built only when its spec status is **Ready** (owner has read it). Code PRs link the spec file.

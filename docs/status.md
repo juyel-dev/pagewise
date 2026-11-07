@@ -14,7 +14,8 @@ Update this file in any PR that changes the state. Last updated: **2026-11-07**.
 
 ## Next, in order
 
-0. **Spec pack first (decision 47):** write screen specs S06, S07, S03/S04, S11–S13, S08–S10, S14–S16, A01–A09 (see `docs/spec/README.md` register). No screen is rebuilt before its spec is Ready.
+0. **Walkthrough first (decision 49):** finish `docs/walkthrough/` pages 07–10 (practice and tests, progress/bookmarks/settings, search/help/legal/system, admin). Then the Visual spec gaps in `docs/spec/README.md`.
+0. **Spec pack (decision 47):** write screen specs S06, S07, S03/S04, S11–S13, S08–S10, S14–S16, A01–A09 (see `docs/spec/README.md` register). No screen is rebuilt before its spec is Ready.
 1. **H1 / F3:** build `apps/admin` per `blueprint/18` (spec approval first).
 2. **H1 / F4:** workspace refactor + PDF viewer speed (doc 16 §2 list).
 3. Sentry, Playwright smoke tests, rate limiting.
