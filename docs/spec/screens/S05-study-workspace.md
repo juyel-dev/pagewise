@@ -1,6 +1,6 @@
 # S05 · Study workspace
 
-**Route:** `/study/[chapter]?p=<pdf page>` · **App:** web · **Status:** Draft (awaiting owner read) · **Related:** decisions 15, 18, 29, 38, 41; `blueprint/09`, `12`; canvas boards "Study workspace · desktop/mobile"
+**Route:** `/study/[chapter]?p=<pdf page>` · **App:** web · **Status:** Ready (owner approved 2026-11-07) · **Related:** decisions 15, 18, 29, 38, 41; `blueprint/09`, `12`; canvas boards "Study workspace · desktop/mobile"
 
 ## 1. Purpose and success
 - **User goal:** read one NCERT page and practise exactly that page's questions, then jump back to the source when wrong.
@@ -202,9 +202,11 @@ Each step is its own PR; tests listed in §14 are added with the step that satis
 9. **Staff tools removal** in F3 (admin app).
 
 ## 16. Open questions
-None blocking. To confirm when the owner reads this: (a) Follow my reading default ON (this spec), (b) key `Q` and `?` additions, (c) PageSummary after the last question.
+None. Confirmed by the owner on 2026-11-07: Follow my reading default ON; keys `Q` and `?`; PageSummary after the last question.
+**Known gap before building:** element-level visual values (spacing, type role, token per element) are not yet written; add a "Visual spec" section (see `spec/README.md` Known gaps) before F5 UI work starts.
 
 ## 17. Change log
 | Date | Change |
 |---|---|
 | 2026-11-07 | First full draft from the as-built workspace, canvas boards and decisions |
+| 2026-11-07 | Owner approved; status Ready |

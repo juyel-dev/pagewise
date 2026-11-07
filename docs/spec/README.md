@@ -33,7 +33,7 @@ Status: **Ready** (owner-read) · **Draft** (written, awaiting owner) · **Thin*
 | S02 | Start carousel | `/start` | — | To write |
 | S03 | Sign in | `/sign-in` | — | To write |
 | S04 | Onboarding | `/onboarding` | — | To write |
-| **S05** | **Study workspace** | `/study/[chapter]` | `screens/S05-study-workspace.md` | **Draft** |
+| **S05** | **Study workspace** | `/study/[chapter]` | `screens/S05-study-workspace.md` | **Ready** |
 | S06 | Study hub | `/study` | — | To write |
 | S07 | Home | `/home` | `frontend/screens/03-home-dashboard.md` | Thin |
 | S08 | Practice hub | `/practice` | — | To write |
@@ -52,3 +52,12 @@ Writing order: S05 → S06 → S07 → S03/S04 → S11/S12/S13 → S08–S10 →
 ## Reference artefact
 
 The Design canvas (https://claude.ai/artifact/SMz7j3fnYK5YpwNJP3wmtd) shows layout for most screens. It is **reference only**: where it disagrees with this pack or `decisions.md`, this pack wins (known deviations: `blueprint/14` §13).
+
+## Known gaps (honest list, 2026-11-07)
+
+An independent developer can build S05's behaviour from this pack without product decisions, but these gaps remain and must be closed before the pack is called complete:
+1. **Visual spec per element** (spacing, type role, token, icon name, radius for each element in each state). Today the pack gives layout, sizes of regions and state semantics, not every pixel.
+2. **High-fidelity reference boards** built with the repo's real tokens (the current canvas uses different colours).
+3. **Developer onboarding** (`docs/dev/`): how to run, env variables, test data, branch and PR conventions, definition of done checklist.
+4. **Test fixtures**: a seeded dataset of chapters, pages and questions covering every question type and edge case.
+5. **Remaining screens** (all "To write" rows above).
