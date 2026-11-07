@@ -15,6 +15,7 @@ Planning is the product. These docs are written **before** each build step so th
 - [01 Vision and positioning](product/01-vision-and-positioning.md)
 - [02 Roadmap](product/02-roadmap.md)
 - [03 Content and legal guardrails](product/03-content-and-legal-guardrails.md)
+- [04 Two-year plan](product/04-two-year-plan.md)
 
 ### Blueprint (master plan, draft v1: approve before building)
 - [00 Master blueprint](blueprint/00-master-blueprint.md)
@@ -49,6 +50,11 @@ Planning is the product. These docs are written **before** each build step so th
 
 ### Architecture
 - [01 Tech stack](architecture/01-tech-stack.md)
+- [14 Platform architecture plan](blueprint/14-platform-architecture-plan.md)
+- [15 Environments, domains, release](blueprint/15-environments-and-release.md)
+- [16 Scale, performance, cost](blueprint/16-scale-and-cost-plan.md)
+- [17 UI quality and polish pass](blueprint/17-ui-quality-and-polish-plan.md)
+- [18 Admin app spec](blueprint/18-admin-app-spec.md)
 
 ### Ops
 - [01 Deploy on Vercel](ops/01-deploy-vercel.md)
@@ -56,6 +62,7 @@ Planning is the product. These docs are written **before** each build step so th
 
 ### Decisions
 - [Decision log](decisions.md)
+- [Project status (living)](status.md)
 
 ## Build log
 
@@ -82,4 +89,4 @@ Planning is the product. These docs are written **before** each build step so th
 | 2026-10-31 | **Ch-02 content imported — Biological Classification (`draft`, ready for owner review)** | 13 page files (unit-01 → chapter-02) from `juyel-dev/neet-pcb-question-bank` validated + imported through the faithful pipeline port → **232 questions** `in_review` (v1 payloads, `source_note` `kebo102.pdf, PDF page N`; per-page 13/18/16/17/19/19/19/18/22/18/18/20/15 = 232), 13 `page_map` rows (all `content`, printed labels 1–13), 13 `audit_log` rows (actor Juyel-dev), 0 unlinked version pointers. Chapter row created (`class11-bio-ch02`, unit 1 · Diversity in the Living World, no dupes against existing slugs/sha). NCERT `kebo102.pdf` (3.29 MB, `%PDF-1.6`, pypdf reports 13 pages = JSON alignment OK) uploaded to `chapter-pdfs/class11-bio-ch02.pdf` via storage REST; `pdf_sha256` `7952d430…36c9` + `page_count` 13 stored (decision 36c dedupe check ran — no other chapter holds this sha). Signed-URL serves exact bytes. Status stays `draft` (supabase-verified); chapter publish + question publish remain the owner's calls. |
 | 2026-10-31 | **All 232 Ch-02 questions published (owner approved)** | Owner picked "চ্যাপ্টার + Q publish" on the ch-02 readiness question → chapter `draft → live` and all 232 `in_review → published` in one pass, mirroring the ch-01 bulk-publish convention (audit row action `publish_all`, entity `kebo102`, after `{published: 232}`; the console's per-question `reviews` path was skipped exactly as ch-01's was). Anon/guest verification via production server: `/study` hub card renders for guests, `/study/class11-bio-ch02` 200 (63 KB), live chapter + 232 published questions served. Biology · 11 now has 2 fully readable + practisable chapters (171 + 232 questions). Note: the automation browser in this session stopped filling the PPR stream (yesterday's build included) — HTTP-level evidence confirms serving; owner to confirm visually. |
 | 2026-11-03 | **Sign-in optional + local-first guest data (owner directive, decision 38)** | Guest limit removed: every published question now reaches guests. New IndexedDB store (`src/lib/local/*`, database `pagewise-local`) keeps bookmarks, reading progress and attempts in the browser; the workspace writes there for guests with no redirects, and Home / Study / Bookmarks / Progress render that real local data (Progress stays a 30-day IST view). On sign-in `LocalSync` posts the snapshot to `syncLocalData`: bookmarks and attempts union with duplicate-ignore, reading progress merges by page-union and the newer last page, then the local copy is cleared; failures keep it for the next load. `/progress` and `/bookmarks` leave the proxy's protected list (Settings/onboarding/staff remain auth-only). Copy states everything is free and sign-in is optional (landing hero, sign-in card, shell, hub, workspace). The Study hub and chapter workspace now stream through PPR fallback shells (`StudyHubFallback` / `StudyFallback`), clearing the uncached-data navigation warning. Checks: typecheck ✓ lint ✓ (2 pre-existing warnings) tests 35 ✓ / 2 skip ✓ contrast 49/49 ✓ build ✓. Verified on the production build (2026-11-04 holdover): page 1 serves all 13 questions to a guest, bookmark + attempt + reading progress land in IndexedDB (progress saves once the PDF is ready), and `/bookmarks` + `/progress` render that local data. |
-
+| 2026-11-05 to 07 | **Platform foundation, hardening and planning** (decisions 39–46) | Monorepo (`apps/web`, `packages/question-schema`); server-side grading trigger live in production; security headers; typed env; error/404/loading pages; Vercel root directory and `bom1` region; SSO protection off. Wrote docs 14–18, the two-year plan and `status.md`. Design canvas (layout reference) published. |
