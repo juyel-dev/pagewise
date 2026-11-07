@@ -104,11 +104,11 @@ Key format `area.section.element` (e.g. `landing.hero.title`). No text inside im
 | `/study` | Study hub | ✓ | all |
 | `/study/[chapter]` | Study workspace | — | all |
 | `/practice` | Practice hub | ✓ | all |
-| `/practice/test/new` · `/practice/test/[id]` · `/practice/test/[id]/result` | Chapter test | — | all |
-| `/practice/review` | Review session | — | signed-in |
+| `/practice/new` · `/practice/session/[id]` · `/practice/session/[id]/result` | Practice session (quick or test) | — | all |
+| `/practice/review` | Review queue | — | signed-in |
 | `/progress` | Progress | ✓ | all (guest = this device) |
 | `/bookmarks` | Bookmarks | ✓ | all |
-| `/settings` | Settings (Profile, Preferences, Data and privacy, Account) | ✓ | signed-in |
+| `/settings` | Settings (Profile, Preferences, Data and privacy, Account) | ✓ | all; Profile and Account need sign-in |
 | `/help` | Help centre + FAQ + contact | ✓ | all |
 | `/legal/privacy` · `/legal/terms` · `/legal/content` | Legal | footer | all |
 | `/start` | **Removed**, redirects to `/study` | — | — |
