@@ -26,4 +26,4 @@ Style shorthand: `bg:` fill token · `b:` border · `r:` radius px · `p:` paddi
 | 07 | `07-practice.md` | Practice hub, setup, session (quick/test), result, review queue | Draft |
 | 08 | `08-progress-bookmarks-settings.md` | Progress, Bookmarks (+ missed), Settings (4 tabs) | Draft |
 | 09 | `09-search-help-legal-system.md` | Search palette, Help, Legal (3), System pages | Draft |
-| 10 | — | Admin console (9 screens) | To write |
+| 10 | `10-admin-console.md` | Admin console: shell and 9 screens | Draft |
