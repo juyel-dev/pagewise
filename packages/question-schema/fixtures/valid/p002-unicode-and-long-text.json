@@ -1,0 +1,88 @@
+{
+  "source": {
+    "class": 11,
+    "subject": "Biology",
+    "unit": "Fixture unit",
+    "section": "Fixture section",
+    "chapter": "Fixture chapter",
+    "pdf_file": "fixture.pdf",
+    "pdf_page": 2,
+    "chapter_page": 2,
+    "source_scope": "fixture"
+  },
+  "question_count": 4,
+  "questions": [
+    {
+      "id": "BIO-C11-FX-P002-Q001",
+      "type": "single_correct",
+      "topic": "ऊतक",
+      "question": "कौन सा ऊतक तने को लचीला सहारा देता है?",
+      "options": [
+        "मृदुतक",
+        "स्थूलकोणोतक",
+        "दृढ़ोतक",
+        "फ्लोएम तंतु"
+      ],
+      "explanation": "स्थूलकोणोतक की कोशिकाओं के कोने मोटे होते हैं।",
+      "source_text": "स्थूलकोणोतक कोमल भागों को सहारा देता है।",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 1
+    },
+    {
+      "id": "BIO-C11-FX-P002-Q002",
+      "type": "single_correct",
+      "topic": "কলা",
+      "question": "কোন কলা কচি কাণ্ডকে নমনীয় যান্ত্রিক সহায়তা দেয়?",
+      "options": [
+        "প্যারেনকাইমা",
+        "কোলেনকাইমা",
+        "স্কেলেরেনকাইমা",
+        "ফ্লোয়েম তন্তু"
+      ],
+      "explanation": "কোলেনকাইমার কোণগুলো পুরু।",
+      "source_text": "কোলেনকাইমা বর্ধনশীল অংশকে ধরে রাখে।",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 1
+    },
+    {
+      "id": "BIO-C11-FX-P002-Q003",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout. A very long question stem that keeps going to test wrapping and layout.\nSecond line after a line break: which option is correct?",
+      "options": [
+        "Option with a very long text Option with a very long text Option with a very long text Option with a very long text Option with a very long text Option with a very long text ",
+        "Short",
+        "Another long option Another long option Another long option Another long option Another long option ",
+        "Last"
+      ],
+      "explanation": "Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. Long explanation. ",
+      "source_text": "Source line. Source line. Source line. Source line. Source line. Source line. Source line. Source line. Source line. Source line. ",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    },
+    {
+      "id": "BIO-C11-FX-P002-Q004",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Water is written H₂O and carbon dioxide CO₂. Which has a subscript 2 in both?",
+      "options": [
+        "H₂O only",
+        "CO₂ only",
+        "Both",
+        "Neither"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 2
+    }
+  ]
+}

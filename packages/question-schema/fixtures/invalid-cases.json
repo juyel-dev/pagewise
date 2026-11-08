@@ -1,0 +1,636 @@
+[
+  {
+    "name": "not an object",
+    "expect": "source",
+    "file": {
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "wrong class",
+    "expect": "source.class",
+    "file": {
+      "source": {
+        "class": 10,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "page below 1",
+    "expect": "pdf_page",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 0,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "count mismatch",
+    "expect": "question_count",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "id for another page",
+    "expect": "says page",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P008-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "id for another class",
+    "expect": "says class",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C12-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "malformed id",
+    "expect": "id must look like",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "Q1",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "unknown type",
+    "expect": "type must be one of",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "essay",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty explanation",
+    "expect": "explanation is empty",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": " ",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "source text too long",
+    "expect": "longer than",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "bad difficulty",
+    "expect": "difficulty",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "insane",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "one option",
+    "expect": "options must be",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "only"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "duplicate options",
+    "expect": "identical",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "a ",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "correct index out of range",
+    "expect": "valid option number",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "single_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 9
+        }
+      ]
+    }
+  },
+  {
+    "name": "multiple with one correct",
+    "expect": "correct_options",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "multiple_correct",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_options": [
+            1
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "match without columns",
+    "expect": "column",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "match_the_following",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "assertion-reason without wording",
+    "expect": "assertion",
+    "file": {
+      "source": {
+        "class": 11,
+        "subject": "Biology",
+        "unit": "Fixture unit",
+        "section": "Fixture section",
+        "chapter": "Fixture chapter",
+        "pdf_file": "fixture.pdf",
+        "pdf_page": 7,
+        "chapter_page": 7,
+        "source_scope": "fixture"
+      },
+      "question_count": 1,
+      "questions": [
+        {
+          "id": "BIO-C11-FX-P007-Q001",
+          "type": "assertion_reason",
+          "topic": "Fixture topic",
+          "question": "Q?",
+          "options": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explanation": "Fixture explanation.",
+          "source_text": "Fixture source line.",
+          "difficulty": "medium",
+          "question_origin": "fixture",
+          "verification": "fixture",
+          "correct_option": 1
+        }
+      ]
+    }
+  }
+]

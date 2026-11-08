@@ -1,0 +1,32 @@
+{
+  "source": {
+    "class": 11,
+    "subject": "Biology",
+    "unit": "Fixture unit",
+    "section": "Fixture section",
+    "chapter": "Fixture chapter",
+    "pdf_file": "fixture.pdf",
+    "pdf_page": 4,
+    "chapter_page": 4,
+    "source_scope": "fixture"
+  },
+  "question_count": 1,
+  "questions": [
+    {
+      "id": "BIO-C11-FX-P004-Q001",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Source text exactly 400 characters?",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxy",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    }
+  ]
+}
