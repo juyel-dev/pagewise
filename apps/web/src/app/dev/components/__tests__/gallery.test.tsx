@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Gallery } from "@/app/dev/components/gallery";
+import { Gallery } from "../gallery";
 import { ToastProvider } from "@/components/ui/toast";
 import { expectNoA11yViolations } from "@/test/axe";
 
