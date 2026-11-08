@@ -1,0 +1,119 @@
+{
+  "source": {
+    "class": 11,
+    "subject": "Biology",
+    "unit": "Fixture unit",
+    "section": "Fixture section",
+    "chapter": "Fixture chapter",
+    "pdf_file": "fixture.pdf",
+    "pdf_page": 1,
+    "chapter_page": 1,
+    "source_scope": "fixture"
+  },
+  "question_count": 5,
+  "questions": [
+    {
+      "id": "BIO-C11-FX-P001-Q001",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Which tissue gives flexible mechanical support to young stems?",
+      "options": [
+        "Parenchyma",
+        "Collenchyma",
+        "Sclerenchyma",
+        "Phloem fibres"
+      ],
+      "explanation": "Collenchyma has thickened corners and supports growing parts.",
+      "source_text": "Collenchyma supports young, growing parts.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 1
+    },
+    {
+      "id": "BIO-C11-FX-P001-Q002",
+      "type": "multiple_correct",
+      "topic": "Fixture topic",
+      "question": "Which of the following are simple tissues?",
+      "options": [
+        "Parenchyma",
+        "Xylem",
+        "Collenchyma",
+        "Phloem"
+      ],
+      "explanation": "Parenchyma and collenchyma are simple tissues; xylem and phloem are complex.",
+      "source_text": "Xylem and phloem are complex tissues.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_options": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "BIO-C11-FX-P001-Q003",
+      "type": "multiple_statement",
+      "topic": "Fixture topic",
+      "question": "Statement I: Xylem conducts water. Statement II: Phloem conducts food. Which is correct?",
+      "options": [
+        "Only I",
+        "Only II",
+        "Both I and II",
+        "Neither"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 2
+    },
+    {
+      "id": "BIO-C11-FX-P001-Q004",
+      "type": "match_the_following",
+      "topic": "Fixture topic",
+      "question": "Match the tissue with its function.",
+      "options": [
+        "A-3, B-1, C-2",
+        "A-1, B-2, C-3",
+        "A-2, B-3, C-1",
+        "A-3, B-2, C-1"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0,
+      "column_a": [
+        "Collenchyma",
+        "Xylem",
+        "Phloem"
+      ],
+      "column_b": [
+        "Conducts water",
+        "Conducts food",
+        "Flexible support"
+      ]
+    },
+    {
+      "id": "BIO-C11-FX-P001-Q005",
+      "type": "assertion_reason",
+      "topic": "Fixture topic",
+      "question": "Assertion (A): Sclerenchyma cells are dead at maturity. Reason (R): Their walls are heavily lignified.",
+      "options": [
+        "Both A and R are true and R explains A",
+        "Both true, R does not explain A",
+        "A is true, R is false",
+        "A is false, R is true"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    }
+  ]
+}

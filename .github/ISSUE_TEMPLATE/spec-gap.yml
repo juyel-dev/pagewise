@@ -1,0 +1,15 @@
+name: Spec gap or change
+description: The walkthrough/spec is missing something, unclear, or should change
+labels: [spec]
+body:
+  - type: input
+    id: doc
+    attributes: { label: File and section, placeholder: "docs/walkthrough/04-home.md §S5" }
+    validations: { required: true }
+  - type: textarea
+    id: gap
+    attributes: { label: What is missing, unclear or wrong? }
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes: { label: Proposed wording or decision }

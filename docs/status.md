@@ -14,7 +14,8 @@ Update this file in any PR that changes the state. Last updated: **2026-11-07**.
 
 ## Next, in order
 
-0. **Walkthrough is complete as a first draft (decision 49):** pages 00–10 in `docs/walkthrough/`. Owner reads and corrects; then convert to build-ready (visual specs, fixtures, dev onboarding) and set the build order.
+0. **Walkthrough first draft complete (pages 00–10), fixtures, developer guide and build order written** (decisions 49–51). Owner reads and corrects the walkthrough.
+0. **Build starts at `docs/product/05-build-order.md` B0 → B1 → B2 → B3.**
 0. **Spec pack (decision 47):** write screen specs S06, S07, S03/S04, S11–S13, S08–S10, S14–S16, A01–A09 (see `docs/spec/README.md` register). No screen is rebuilt before its spec is Ready.
 1. **H1 / F3:** build `apps/admin` per `blueprint/18` (spec approval first).
 2. **H1 / F4:** workspace refactor + PDF viewer speed (doc 16 §2 list).

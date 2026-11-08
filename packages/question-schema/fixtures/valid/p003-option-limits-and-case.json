@@ -1,0 +1,88 @@
+{
+  "source": {
+    "class": 11,
+    "subject": "Biology",
+    "unit": "Fixture unit",
+    "section": "Fixture section",
+    "chapter": "Fixture chapter",
+    "pdf_file": "fixture.pdf",
+    "pdf_page": 3,
+    "chapter_page": 3,
+    "source_scope": "fixture"
+  },
+  "question_count": 4,
+  "questions": [
+    {
+      "id": "BIO-C11-FX-P003-Q001",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "True or false: Xylem conducts water.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    },
+    {
+      "id": "BIO-C11-FX-P003-Q002",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Pick the correct binomial.",
+      "options": [
+        "Mangifera indica",
+        "Mangifera Indica",
+        "mangifera indica",
+        "Mangifera INDICA"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    },
+    {
+      "id": "BIO-C11-FX-P003-Q003",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Eight options: which one is the odd one out?",
+      "options": [
+        "Option 1",
+        "Option 2",
+        "Option 3",
+        "Option 4",
+        "Option 5",
+        "Option 6",
+        "Option 7",
+        "Option 8"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 7
+    },
+    {
+      "id": "BIO-C11-FX-P003-Q004",
+      "type": "single_correct",
+      "topic": "Fixture topic",
+      "question": "Does <b>bold</b> & <script>alert(1)</script> render as plain text?",
+      "options": [
+        "Yes, as text",
+        "No, it is interpreted"
+      ],
+      "explanation": "Fixture explanation.",
+      "source_text": "Fixture source line.",
+      "difficulty": "medium",
+      "question_origin": "fixture",
+      "verification": "fixture",
+      "correct_option": 0
+    }
+  ]
+}

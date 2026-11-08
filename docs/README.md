@@ -63,6 +63,8 @@ Planning is the product. These docs are written **before** each build step so th
 ### Decisions
 - [Decision log](decisions.md)
 - [Project status (living)](status.md)
+- [**Developer guide — start here**](dev/README.md) · [conventions and Definition of Done](dev/conventions.md)
+- [Build order B0–B10](product/05-build-order.md)
 - [**Walkthrough: the finished app, page by page**](walkthrough/README.md) — visual source of truth (decision 49)
 - [**Build-ready spec pack**](spec/README.md) — per-screen specs, components, navigation, data contracts (decision 47)
 
