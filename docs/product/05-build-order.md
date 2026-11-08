@@ -9,10 +9,11 @@ Goal: confidence and measurement before the big UI work.
 Includes: Playwright with axe (smoke: landing, study hub, workspace on fixtures); Lighthouse CI on previews with the budgets in `blueprint/16`; Sentry (web); typed rate limiting on write actions; dev seeding script that loads `packages/question-schema/fixtures/valid/*` into a development project; Storybook-style `/dev/components` page behind an env flag (never in production).
 Done when: a PR runs typecheck, lint, tests, SQL tests, Playwright smoke and Lighthouse automatically.
 
-## B1 · Design system — M
+## B1 · Design system — M  ✅ built 2026-11-08 (PR open → see status.md)
 Specs: `walkthrough/00-tour.md` §3, `spec/01-design-language.md`, `spec/02-components.md` (A and E sections).
 Build: type roles v2 and spacing scale in tokens; Button (sizes, loading, icons), IconButton, Chip, SegmentedControl, Tabs, Card, Input/Select/Textarea, Checkbox/Switch, ProgressBar, ProgressRing, Skeleton, EmptyState, StatusPage (+offline), Toast, Dialog, Sheet, Tooltip, KeyHint. Light and dark.
 Done when: every component has tests (all states, keyboard), contrast script passes, the `/dev/components` page shows them all.
+*Built:* type roles (`text-display … text-caption`), Button (+sm, danger, loading, icons), IconButton, Chip, Badge, SegmentedControl, Tabs, Card/CardLink, TextField/TextareaField/SelectField, Checkbox, Switch, ProgressBar, ProgressRing, Skeleton, EmptyState, KeyHint, Tooltip, Dialog, Sheet (on one `Modal` base), Toast (`ToastProvider` in the root layout). 54 component tests with axe; gallery at `/dev/components` (dev only; set `NEXT_PUBLIC_DEV_COMPONENTS=true` to expose it on a preview). Not built here: StatusPage offline variant and the study-specific components (they belong to B3).
 
 ## B2 · Shells and i18n scaffold — M
 Specs: `walkthrough/00-tour.md` §2, §4.
