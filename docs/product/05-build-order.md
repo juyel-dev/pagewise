@@ -15,10 +15,11 @@ Build: type roles v2 and spacing scale in tokens; Button (sizes, loading, icons)
 Done when: every component has tests (all states, keyboard), contrast script passes, the `/dev/components` page shows them all.
 *Built:* type roles (`text-display … text-caption`), Button (+sm, danger, loading, icons), IconButton, Chip, Badge, SegmentedControl, Tabs, Card/CardLink, TextField/TextareaField/SelectField, Checkbox, Switch, ProgressBar, ProgressRing, Skeleton, EmptyState, KeyHint, Tooltip, Dialog, Sheet (on one `Modal` base), Toast (`ToastProvider` in the root layout). 54 component tests with axe; gallery at `/dev/components` (dev only; set `NEXT_PUBLIC_DEV_COMPONENTS=true` to expose it on a preview). Not built here: StatusPage offline variant and the study-specific components (they belong to B3).
 
-## B2 · Shells and i18n scaffold — M
+## B2 · Shells and i18n scaffold — M  ✅ built 2026-11-08
 Specs: `walkthrough/00-tour.md` §2, §4.
 Build: public header/footer; app shell with light sidebar (desktop) and bottom tab bar (phone) and "More" sheet; account menu; theme and language menus; search trigger (palette itself in B8); GuestBanner; offline pill; `next-intl` with English catalogue (`area.section.element` keys); redirect `/start` → `/study`.
 Done when: all existing pages sit inside the new shells and pass the Definition of Done.
+*Built:* `next-intl` with one locale (`messages/en.json`, typed keys, no cookie/header reads so pages stay prerendered); light sidebar (≥ 1024), phone top bar + bottom tab bar (Home, Study, Practice, Progress, More) with a More sheet; tab bar hidden on workspace routes only; offline pill; account card (guest or user with class and NEET year); public header and footer (footer keeps the NCERT/NTA non-affiliation text; Contact link appears only when `NEXT_PUBLIC_CONTACT_EMAIL` is set); `/start` removed (redirects to `/study`). *Deferred on purpose:* search trigger (arrives with the palette in B8), GuestBanner (built where it is first used: B3/B4), language menu (appears when a second locale ships), landing section links (B5), Help link (B8). New user-visible text goes into `messages/en.json`; existing pages are migrated as each is rebuilt.
 
 ## B3 · Study workspace — L (the core)
 Specs: `walkthrough/06-study-workspace.md` (visual), `spec/screens/S05-study-workspace.md` (behaviour, 28 acceptance tests), `spec/04-data-contracts.md`.

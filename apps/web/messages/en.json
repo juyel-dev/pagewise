@@ -1,0 +1,48 @@
+{
+  "common": {
+    "signIn": "Sign in",
+    "startStudying": "Start studying",
+    "skipToContent": "Skip to content",
+    "close": "Close",
+    "more": "More"
+  },
+  "nav": {
+    "home": "Home",
+    "study": "Study",
+    "practice": "Practice",
+    "progress": "Progress",
+    "bookmarks": "Bookmarks",
+    "settings": "Settings"
+  },
+  "shell": {
+    "mainNav": "Main",
+    "tabBar": "Primary",
+    "homeLink": "Pagewise home",
+    "offline": "Offline. Your answers are saved on this device.",
+    "guestTitle": "Studying as a guest",
+    "guestBody": "Sign in to keep your progress on every device.",
+    "metaClass": "Class {cls} · NEET {year}",
+    "metaClassOnly": "Class {cls}",
+    "metaDropper": "Dropper · NEET {year}",
+    "metaDropperOnly": "Dropper",
+    "moreTitle": "More",
+    "terms": "Terms of service",
+    "privacy": "Privacy policy"
+  },
+  "publicHeader": {
+    "navLabel": "Site",
+    "homeLink": "Pagewise home",
+    "menu": "Menu"
+  },
+  "footer": {
+    "navLabel": "Footer",
+    "tagline": "Read the NCERT page. Practise its questions.",
+    "study": "Study",
+    "legal": "Legal",
+    "help": "Help",
+    "terms": "Terms of service",
+    "privacy": "Privacy policy",
+    "contact": "Contact",
+    "disclaimer": "{name} is an independent project and is not affiliated with, or endorsed by, NCERT or NTA. NCERT textbooks remain the property of NCERT. Always cross-check with your textbook."
+  }
+}

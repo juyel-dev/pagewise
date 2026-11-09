@@ -31,4 +31,11 @@ describe("readEnv", () => {
     expect(r.env.siteUrl).toBe("http://localhost:3000");
     expect(r.env.waitlistUrl).toBe("");
   });
+  it("accepts a valid contact email and ignores an invalid one with a warning", () => {
+    expect(readEnv({ NEXT_PUBLIC_CONTACT_EMAIL: "hello@example.com" }).env.contactEmail).toBe("hello@example.com");
+    const bad = readEnv({ NEXT_PUBLIC_CONTACT_EMAIL: "not-an-email" });
+    expect(bad.env.contactEmail).toBe("");
+    expect(bad.problems).toHaveLength(1);
+    expect(readEnv({}).env.contactEmail).toBe("");
+  });
 });
