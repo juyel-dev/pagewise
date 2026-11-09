@@ -13,7 +13,7 @@ export function Hero() {
           <h1 id="hero-heading" className="text-[2.6rem] leading-[1.06] font-semibold tracking-tight text-ink sm:text-6xl">Study Smarter.<br />Score Higher.</h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-ink-2 text-pretty sm:text-xl sm:leading-9">NEET Biology made simple with page-based questions, smart tracking and focused learning.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/start" size="lg" className="w-full sm:w-auto">
+            <ButtonLink href="/study" size="lg" className="w-full sm:w-auto">
               <GoogleMark />
               Continue with Google
             </ButtonLink>

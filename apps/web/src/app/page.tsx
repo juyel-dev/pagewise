@@ -1,15 +1,15 @@
 import { Hero } from "@/components/landing/hero";
-import { SiteFooter } from "@/components/landing/site-footer";
-import { SiteHeader } from "@/components/landing/site-header";
+import { PublicFooter } from "@/components/layout/public-footer";
+import { PublicHeader } from "@/components/layout/public-header";
 
 export default function LandingPage() {
   return (
     <>
-      <SiteHeader />
+      <PublicHeader />
       <main id="main">
         <Hero />
       </main>
-      <SiteFooter />
+      <PublicFooter />
     </>
   );
 }

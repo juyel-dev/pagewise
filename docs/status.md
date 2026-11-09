@@ -15,7 +15,7 @@ Update this file in any PR that changes the state. Last updated: **2026-11-07**.
 ## Next, in order
 
 0. **Walkthrough first draft complete (pages 00–10), fixtures, developer guide and build order written** (decisions 49–51). Owner reads and corrects the walkthrough.
-0. **Build in progress (`docs/product/05-build-order.md`):** B1 design system built (components, type roles, gallery). Next: B2 shells and i18n scaffold, then B3 Study workspace; B0 tooling (Playwright, Lighthouse CI, Sentry, rate limiting, seeding) is done alongside because it needs CI and accounts.
+0. **Build in progress (`docs/product/05-build-order.md`):** B1 design system and B2 shells + i18n built. Next: B3 Study workspace; B0 tooling (Playwright, Lighthouse CI, Sentry, rate limiting, seeding) is done alongside because it needs CI and accounts.
 0. **Spec pack (decision 47):** write screen specs S06, S07, S03/S04, S11–S13, S08–S10, S14–S16, A01–A09 (see `docs/spec/README.md` register). No screen is rebuilt before its spec is Ready.
 1. **H1 / F3:** build `apps/admin` per `blueprint/18` (spec approval first).
 2. **H1 / F4:** workspace refactor + PDF viewer speed (doc 16 §2 list).

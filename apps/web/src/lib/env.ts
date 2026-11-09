@@ -10,6 +10,8 @@ export type AppEnv = {
   supabaseKey: string;
   siteUrl: string;
   waitlistUrl: string;
+  /** Public contact address for the footer; empty hides the link. */
+  contactEmail: string;
 };
 
 function isHttpUrl(value: string): boolean {
@@ -43,7 +45,11 @@ export function readEnv(source: Source): { env: AppEnv; problems: string[]; fata
   const waitlistUrl = (source.NEXT_PUBLIC_WAITLIST_URL ?? "").trim();
   if (waitlistUrl && !isHttpUrl(waitlistUrl)) problems.push("NEXT_PUBLIC_WAITLIST_URL is not a valid URL.");
 
-  return { env: { supabaseUrl, supabaseKey, siteUrl, waitlistUrl: isHttpUrl(waitlistUrl) ? waitlistUrl : "" }, problems, fatal };
+  const contact = (source.NEXT_PUBLIC_CONTACT_EMAIL ?? "").trim();
+  const contactEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : "";
+  if (contact && !contactEmail) problems.push("NEXT_PUBLIC_CONTACT_EMAIL is not a valid email address.");
+
+  return { env: { supabaseUrl, supabaseKey, siteUrl, waitlistUrl: isHttpUrl(waitlistUrl) ? waitlistUrl : "", contactEmail }, problems, fatal };
 }
 
 const result = readEnv({
@@ -51,6 +57,7 @@ const result = readEnv({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   NEXT_PUBLIC_WAITLIST_URL: process.env.NEXT_PUBLIC_WAITLIST_URL,
+  NEXT_PUBLIC_CONTACT_EMAIL: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
   VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
 });
 

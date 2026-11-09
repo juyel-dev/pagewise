@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
-import { SiteHeader } from "@/components/landing/site-header";
-import { SiteFooter } from "@/components/landing/site-footer";
+import { PublicHeader } from "@/components/layout/public-header";
+import { PublicFooter } from "@/components/layout/public-footer";
 
 type Props = { params: Promise<{ doc: string }> };
 const docs: Record<string, { title: string }> = { terms: { title: "Terms of Service" }, privacy: { title: "Privacy Policy" } };
@@ -23,7 +23,7 @@ export default async function LegalDocPage({ params }: Props) {
   if (!meta) notFound();
   return (
     <>
-      <SiteHeader />
+      <PublicHeader />
       <main id="main" className="py-14"><Container>
         <article className="mx-auto max-w-2xl">
           <h1 className="text-2xl font-semibold text-ink">{meta.title}</h1>
@@ -40,7 +40,7 @@ export default async function LegalDocPage({ params }: Props) {
           <p className="mt-6 text-sm text-muted"><Link href="/" className="underline underline-offset-2 hover:text-ink">← Back to the site</Link></p>
         </article>
       </Container></main>
-      <SiteFooter />
+      <PublicFooter />
     </>
   );
 }
