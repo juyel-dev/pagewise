@@ -16,3 +16,8 @@ if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.sho
     this.dispatchEvent(new Event("close"));
   };
 }
+
+// jsdom has no ResizeObserver; components that measure themselves only need it not to throw.
+if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
+  (window as unknown as { ResizeObserver: unknown }).ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+}

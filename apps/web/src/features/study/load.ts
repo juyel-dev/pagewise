@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth/session";
 import type { QuestionPayload, QuestionType } from "@pagewise/question-schema";
 import { createClient } from "@/lib/supabase/server";
+import { resolveInitialPage } from "./logic";
 import type { PageMapRow, StudyChapter, StudyQuestion } from "./types";
 
 export type StudyData = {
@@ -56,13 +57,12 @@ export async function loadStudy(slug: string, opts: { p?: string; review: boolea
     pdfUrl = data?.signedUrl ?? null;
   }
   const count = ch.page_count ?? Math.max(1, (pm.data ?? []).length);
-  const want = Number(opts.p) || prog.data?.last_page || 1;
 
   return {
     chapter: { id: ch.id, slug: ch.slug, title: ch.title, pageCount: count, status: ch.status, unit: ch.unit_title ?? null, pdfSha256: ch.pdf_sha256 ?? null },
     pageMap: (pm.data ?? []) as PageMapRow[], pdfUrl, isAdmin: role === "admin", review: opts.review,
     questionsByPage: grouped,
-    initialPage: Math.min(Math.max(1, want), count),
+    initialPage: resolveInitialPage({ param: opts.p, lastPage: prog.data?.last_page, pageCount: count }),
     seenPages: prog.data?.pages_seen ?? [], bookmarkedIds: (bms.data ?? []).map((b) => b.question_id as string),
     guest,
   };
