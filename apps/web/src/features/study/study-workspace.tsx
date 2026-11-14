@@ -1,33 +1,23 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { PdfViewer, type PdfViewerHandle } from "@/components/viewer/pdf-viewer";
-import { addLocalAttempt, listLocalBookmarks, saveLocalBookmark, saveLocalProgress, removeLocalBookmark } from "@/lib/local/store";
 import { isCorrect } from "@pagewise/question-schema";
 import { createClient } from "@/lib/supabase/client";
 import { setQuestionStatus } from "../review/actions";
-import { recordAttempt, saveProgress, toggleBookmark } from "./actions";
+import { followDecision, nextPageWithQuestions } from "./logic";
 import { QuestionCard } from "./question-card";
-import type { PageMapRow, QState, StudyChapter, StudyQuestion } from "./types";
+import { ShortcutsDialog } from "./shortcuts-dialog";
+import { createStudyStore } from "./store-wiring";
+import type { PageMapRow, StudyChapter, StudyQuestion } from "./types";
+import { usePracticeSession } from "./use-practice-session";
+import { useReadingProgress } from "./use-reading-progress";
+import { useSplitPane } from "./use-split-pane";
+import { useWorkspaceShortcuts } from "./use-workspace-shortcuts";
 
 const btn = "inline-flex h-9 items-center rounded-lg border border-line bg-surface px-3 text-sm text-ink hover:bg-surface-2 disabled:opacity-50";
 const btnPrimary = "inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50";
-// module-level so the purity lint rule does not treat event-handler timing as render-time work
-const nowMs = () => Date.now();
-
-function splitBounds(width: number, swap: boolean) {
-  const available = Math.max(1, width - 12);
-  const leftMin = swap ? 360 : 320;
-  const rightMin = swap ? 320 : 360;
-  const maxLeft = available - rightMin;
-  if (leftMin > maxLeft) return { min: 50, max: 50 };
-  return {
-    min: Math.ceil((leftMin / available) * 100),
-    max: Math.floor((maxLeft / available) * 100),
-  };
-}
 
 type Props = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
@@ -39,220 +29,93 @@ type Props = {
 export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, questionsByPage, initialPage, seenPages, bookmarkedIds, guest = false }: Props) {
   const router = useRouter();
   const viewer = useRef<PdfViewerHandle>(null);
+  const jumpInput = useRef<HTMLInputElement>(null);
+  const store = useMemo(() => createStudyStore(guest), [guest]);
+  const { attach: attachSplit, ...split } = useSplitPane();
   const [localData, setLocalData] = useState<ArrayBuffer | null>(null);
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [viewerReady, setViewerReady] = useState(false);
-  const [page, setPage] = useState(initialPage);
-  const [practicePage, setPracticePage] = useState<number | null>(null);
   const [mode, setMode] = useState<"focus" | "list">("focus");
-  const [focusIdx, setFocusIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [dark, setDark] = useState(false);
-  const [follow, setFollow] = useState(false);
-  const [swap, setSwap] = useState(false);
+  const [follow, setFollow] = useState(true);
+  const [deferredPage, setDeferredPage] = useState<number | null>(null);
   const [showViewer, setShowViewer] = useState(true);
-  const [splitRatio, setSplitRatio] = useState(45);
-  const [splitWidth, setSplitWidth] = useState(784);
-  const splitRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"read" | "practise">("practise");
-  const [states, setStates] = useState<Record<string, QState>>({});
-  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set(bookmarkedIds));
-  const [notice, setNotice] = useState("");
+  const [helpOpen, setHelpOpen] = useState(false);
   const [pdfIssue, setPdfIssue] = useState(false);
   const [viewerKey, setViewerKey] = useState(0);
   const [jump, setJump] = useState("");
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
-  const started = useRef<Record<string, number>>({});
-  const seen = useRef<Set<number>>(new Set(seenPages));
   const readyRef = useRef(false);
 
-  useEffect(() => {
-    const el = splitRef.current;
-    if (!el) return;
-    const updateWidth = () => setSplitWidth(el.clientWidth);
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  function updateSplit(clientX: number) {
-    const rect = splitRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const bounds = splitBounds(rect.width, swap);
-    const usable = Math.max(1, rect.width - 12);
-    const next = ((clientX - rect.left - 6) / usable) * 100;
-    setSplitRatio(Math.max(bounds.min, Math.min(bounds.max, next)));
-  }
-
-  function onSplitPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    updateSplit(e.clientX);
-  }
-
-  function onSplitPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) updateSplit(e.clientX);
-  }
-
-  function onSplitPointerUp(e: ReactPointerEvent<HTMLDivElement>) {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-  }
-
-  function onSplitKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
-    const bounds = splitBounds(splitWidth, swap);
-    const step = e.shiftKey ? 5 : 2;
-    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-      e.preventDefault();
-      setSplitRatio((value) => Math.max(bounds.min, value - step));
-    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-      e.preventDefault();
-      setSplitRatio((value) => Math.min(bounds.max, value + step));
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      setSplitRatio(bounds.min);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      setSplitRatio(bounds.max);
-    }
-  }
-
-  const labelOf = useCallback((p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p), [pageMap]);
-  const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}?p=${page}`)}`;
   const total = numPages || chapter.pageCount;
-  const questionsFor = useCallback((p: number | null): StudyQuestion[] => (p ? questionsByPage[String(p)] ?? [] : []), [questionsByPage]);
+  const { page, onPageChange } = useReadingProgress({ chapter, store, initialPage, seenPages, pageCount: total, enabled: !review, ready: viewerReady });
+  const { states, bookmarks, practisedPage, practisePage, focusIdx, setFocusIdx, notice, setNotice, pick, check, retry, toggleBookmark } = usePracticeSession({ chapter, store, questionsByPage, bookmarkedIds });
+
+  const labelOf = (p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p);
+  const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}?p=${page}`)}`;
+  const questionsFor = (p: number | null): StudyQuestion[] => (p ? questionsByPage[String(p)] ?? [] : []);
   const hasAny = Object.values(questionsByPage).some((l) => l.length > 0);
   const here = questionsFor(page).length;
-  const activePage = review ? page : practicePage;
+  const activePage = review ? page : practisedPage;
   const qs = questionsFor(activePage);
-  const nextWithQ = useMemo(
-    () => Object.keys(questionsByPage).map(Number).filter((p) => p > page && questionsByPage[String(p)].length > 0).sort((a, b) => a - b)[0],
-    [questionsByPage, page],
-  );
+  const nextWithQ = nextPageWithQuestions(questionsByPage, page);
+  const cur = qs[Math.min(focusIdx, Math.max(qs.length - 1, 0))];
+  const effMode = review ? "list" : mode;
+  const hasSource = Boolean(pdfUrl || localData);
+  const bookmark = (q: StudyQuestion) => toggleBookmark(q, activePage ?? page);
 
-  const onReady = useCallback(({ doc }: { doc: { numPages: number } }) => {
+  function onReady({ doc }: { doc: { numPages: number } }) {
     setNumPages(doc.numPages);
     readyRef.current = true;
     setViewerReady(true);
     requestAnimationFrame(() => viewer.current?.scrollToPage(page || initialPage));
-  }, [initialPage, page]);
-  const onPageChange = useCallback((p: number) => { setPage(p); setFocusIdx(0); }, []);
-  const toggleViewer = useCallback(() => {
-    setShowViewer((visible) => {
-      if (visible) setTab("practise");
-      return !visible;
-    });
-  }, []);
+  }
+  function toggleViewer() {
+    if (showViewer) setTab("practise");
+    setShowViewer(!showViewer);
+  }
 
+  // "Follow my reading": when the PDF moves to a page with questions, switch if it will not interrupt work in progress, else offer a chip.
+  const latest = useRef({ practisedPage, states });
+  useEffect(() => { latest.current = { practisedPage, states }; });
   useEffect(() => {
-    if (!readyRef.current || review) return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("p", String(page));
-    window.history.replaceState(null, "", url);
-    seen.current.add(page);
+    if (review) return;
     const t = setTimeout(() => {
-      if (guest) {
-        // Guests keep reading progress in this browser (decision 38).
-        void saveLocalProgress({
-          chapter_id: chapter.id, chapter_slug: chapter.slug, chapter_title: chapter.title,
-          page_count: total, last_page: page, pages_seen: [...seen.current],
-          updated_at: new Date().toISOString(),
-        }).catch(() => {});
-      } else {
-        void saveProgress({ chapterId: chapter.id, lastPage: page, pagesSeen: [...seen.current] });
-      }
-    }, guest ? 800 : 5000);
+      const decision = followDecision({ follow, practisedPage: latest.current.practisedPage, targetPage: page, map: questionsByPage, states: latest.current.states });
+      if (decision === "switch") { practisePage(page); setDeferredPage(null); }
+      else setDeferredPage(decision === "defer" ? page : null);
+    }, 800);
     return () => clearTimeout(t);
-  }, [page, chapter.id, chapter.slug, chapter.title, total, review, guest, viewerReady]);
-
-  // Guests: hydrate bookmarks saved in this browser.
-  useEffect(() => {
-    if (!guest) return;
-    let alive = true;
-    void listLocalBookmarks()
-      .then((rows) => { if (alive && rows.length > 0) setBookmarks(new Set(rows.map((r) => r.question_id))); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [guest]);
-
-  useEffect(() => {
-    if (!follow || review) return;
-    const t = setTimeout(() => { setPracticePage(page); setFocusIdx(0); }, 1500);
-    return () => clearTimeout(t);
+    // Only a change of the page being read (or the toggle) may trigger this, never an answer being given.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [follow, page, review]);
 
-  const practiseHere = useCallback(() => { setPracticePage(page); setFocusIdx(0); setTab("practise"); }, [page]);
+  function practiseHere() { practisePage(page); setDeferredPage(null); setTab("practise"); }
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest("input, textarea, select")) return;
-      if ((e.key === "p" || e.key === "P") && !review) practiseHere();
-      else if (e.key === "v" || e.key === "V") toggleViewer();
-      else if (e.key === "[") viewer.current?.scrollToPage(page - 1);
-      else if (e.key === "]") viewer.current?.scrollToPage(page + 1);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [page, practiseHere, review, toggleViewer]);
-
-  // ----- practice actions -----
-  function pick(q: StudyQuestion, i: number) {
-    started.current[q.id] ??= nowMs();
-    const multi = q.type === "multiple_correct";
-    setStates((s) => {
-      const prev = s[q.id];
-      const cur = prev?.chosen ?? [];
-      const next = multi ? (cur.includes(i) ? cur.filter((x) => x !== i) : [...cur, i]) : [i];
-      return { ...s, [q.id]: { chosen: next, checked: false, attemptNo: prev?.attemptNo ?? 1 } };
-    });
-  }
-  function check(q: StudyQuestion) {
-    const st = states[q.id];
-    if (!st || st.chosen.length === 0) return;
-    setStates((s) => ({ ...s, [q.id]: { ...st, checked: true } }));
-    const ok = isCorrect(st.chosen, q.payload.correct);
-    const timeMs = nowMs() - (started.current[q.id] ?? nowMs());
-    if (guest) {
-      // Guests keep attempts locally; they sync after sign-in (decision 38).
-      void addLocalAttempt({
-        question_id: q.id, version_id: q.version_id, chapter_id: chapter.id,
-        chosen: st.chosen, is_correct: ok, attempt_no: st.attemptNo, time_ms: Math.max(0, timeMs),
-        source: "workspace", release: "local", created_at: new Date().toISOString(),
-      }).catch(() => setNotice("Your answer could not be saved in this browser."));
-      return;
-    }
-    void recordAttempt({
-      questionId: q.id, versionId: q.version_id, chosen: st.chosen,
-      timeMs, attemptNo: st.attemptNo, release: "db", source: "workspace",
-    }).then((r) => { if (!r.ok) setNotice("Your answer could not be saved. Check your connection."); });
-  }
-  function retry(q: StudyQuestion) {
-    started.current[q.id] = nowMs();
-    setStates((s) => ({ ...s, [q.id]: { chosen: [], checked: false, attemptNo: (s[q.id]?.attemptNo ?? 1) + 1 } }));
-  }
-  function bookmark(q: StudyQuestion) {
-    const on = !bookmarks.has(q.id);
-    setBookmarks((b) => { const n = new Set(b); if (on) n.add(q.id); else n.delete(q.id); return n; });
-    if (guest) {
-      // Guests keep bookmarks in this browser; they sync after sign-in (decision 38).
-      const task = on
-        ? saveLocalBookmark({
-            question_id: q.id, chapter_id: chapter.id, chapter_slug: chapter.slug, chapter_title: chapter.title,
-            page: activePage ?? page, stem: q.payload.question, created_at: new Date().toISOString(),
-          })
-        : removeLocalBookmark(q.id);
-      void task.catch(() => {
-        setBookmarks((b) => { const n = new Set(b); if (on) n.delete(q.id); else n.add(q.id); return n; });
-        setNotice("Could not update the bookmark in this browser.");
-      });
-      return;
-    }
-    void toggleBookmark({ questionId: q.id, on }).then((r) => {
-      if (!r.ok) { setBookmarks((b) => { const n = new Set(b); if (on) n.delete(q.id); else n.add(q.id); return n; }); setNotice("Could not update the bookmark."); }
-    });
-  }
+  useWorkspaceShortcuts({
+    choose: ({ index }) => { if (cur && !states[cur.id]?.checked && index < cur.payload.options.length) pick(cur, index); },
+    enter: () => {
+      if (!cur) return;
+      const st = states[cur.id];
+      if (st && st.chosen.length > 0 && !st.checked) check(cur);
+      else if (st?.checked) setFocusIdx((i) => Math.min(i + 1, qs.length - 1));
+    },
+    next: () => setFocusIdx((i) => Math.min(i + 1, Math.max(qs.length - 1, 0))),
+    previous: () => setFocusIdx((i) => Math.max(i - 1, 0)),
+    bookmark: () => { if (cur) bookmark(cur); },
+    source: () => { if (cur && activePage) viewer.current?.scrollToPage(activePage, true); },
+    retry: () => { if (cur && states[cur.id]?.checked) retry(cur); },
+    questions: () => { if (!review) practiseHere(); },
+    toggleViewer,
+    pdfPrevious: () => viewer.current?.scrollToPage(page - 1),
+    pdfNext: () => viewer.current?.scrollToPage(page + 1),
+    goToPage: () => jumpInput.current?.focus(),
+    help: () => setHelpOpen(true),
+  });
 
   // ----- review actions -----
   function setStatus(ids: string[], status: "published" | "in_review" | "retired") {
@@ -294,19 +157,6 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     if (hit) viewer.current?.scrollToPage(hit.pdf_page);
   }
 
-  const hasSource = Boolean(pdfUrl || localData);
-  const cur = qs[Math.min(focusIdx, Math.max(qs.length - 1, 0))];
-  const effMode = review ? "list" : mode;
-  const splitBoundsNow = splitBounds(splitWidth, swap);
-  const effectiveSplitRatio = Math.max(splitBoundsNow.min, Math.min(splitBoundsNow.max, splitRatio));
-  const splitAvailable = Math.max(1, splitWidth - 12);
-  const leftMinWidth = swap ? 360 : 320;
-  const rightMinWidth = swap ? 320 : 360;
-  const leftPaneWidth = Math.max(leftMinWidth, Math.min(
-    splitAvailable - rightMinWidth,
-    Math.round(splitAvailable * effectiveSplitRatio / 100),
-  ));
-
   const practicePane = (
     <section aria-label={review ? "Review" : "Practice"} className="flex h-full min-h-0 flex-col overflow-auto bg-surface p-4">
       {review ? (
@@ -322,6 +172,9 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
           <button className={btnPrimary} onClick={practiseHere} disabled={here === 0}>
             Practice this page · {here} {here === 1 ? "question" : "questions"}
           </button>
+          {deferredPage !== null && deferredPage !== practisedPage && (
+            <button type="button" className={btn} onClick={() => { practisePage(deferredPage); setDeferredPage(null); }}>Page {labelOf(deferredPage)} has {questionsFor(deferredPage).length} questions — Switch</button>
+          )}
           {here === 0 && nextWithQ && <button className={btn} onClick={() => viewer.current?.scrollToPage(nextWithQ)}>Go to next page with questions</button>}
           <div className="ml-auto flex gap-1" role="group" aria-label="Question mode">
             <button className={`${btn} ${mode === "focus" ? "bg-brand-soft text-brand-text" : ""}`} aria-pressed={mode === "focus"} onClick={() => setMode("focus")}>Focus</button>
@@ -417,7 +270,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
             <span className="min-w-28 text-center text-xs text-ink-2">PDF {page}/{total} · printed {labelOf(page)}</span>
             <button className={btn} onClick={() => viewer.current?.scrollToPage(page + 1)} disabled={page >= total || !hasSource} aria-label="Next page">›</button>
           </div>
-          <input value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
+          <input ref={jumpInput} value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
             aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-24 rounded-lg border border-control-border bg-field px-2 text-xs" />
           <div className="flex items-center gap-1" role="group" aria-label="PDF zoom">
             <button className={btn} onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} aria-label="Zoom out">−</button>
@@ -436,7 +289,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
           <div className="hidden items-center gap-3 lg:flex">
             {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
             <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
-            <button className={btn} onClick={() => { setSwap((s) => !s); setSplitRatio((r) => 100 - r); }}>Swap sides</button>
+            <button className={btn} onClick={split.toggleSwap}>Swap sides</button>
             <button className={btn} onClick={toggleViewer}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
             {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF"}</button>}
           </div>
@@ -453,37 +306,35 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
         ))}
       </div>
       <div
-        ref={splitRef}
+        ref={attachSplit}
         className={`flex min-h-0 flex-1 flex-col lg:grid ${showViewer ? "" : "lg:grid-cols-1"}`}
-        style={showViewer ? { gridTemplateColumns: `minmax(${leftMinWidth}px, ${leftPaneWidth}px) 12px minmax(${rightMinWidth}px, 1fr)` } : undefined}
+        style={showViewer ? { gridTemplateColumns: `minmax(${split.leftMin}px, ${split.leftWidth}px) 12px minmax(${split.rightMin}px, 1fr)` } : undefined}
       >
-        <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
+        <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (split.swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
         {showViewer && (
           <>
             <div
               role="separator"
               aria-orientation="vertical"
               aria-label="Resize question and PDF panels"
-              aria-valuemin={splitBoundsNow.min}
-              aria-valuemax={splitBoundsNow.max}
-              aria-valuenow={effectiveSplitRatio}
-              aria-valuetext={`${effectiveSplitRatio}% left panel, ${100 - effectiveSplitRatio}% right panel`}
+              aria-valuemin={split.bounds.min}
+              aria-valuemax={split.bounds.max}
+              aria-valuenow={split.ratio}
+              aria-valuetext={`${split.ratio}% left panel, ${100 - split.ratio}% right panel`}
               tabIndex={0}
-              onPointerDown={onSplitPointerDown}
-              onPointerMove={onSplitPointerMove}
-              onPointerUp={onSplitPointerUp}
-              onPointerCancel={onSplitPointerUp}
-              onKeyDown={onSplitKeyDown}
-              onDoubleClick={() => setSplitRatio(swap ? 55 : 45)}
+              {...split.handleProps}
+              onPointerCancel={split.handleProps.onPointerUp}
+              onDoubleClick={split.reset}
               className="group hidden touch-none cursor-col-resize items-center justify-center bg-surface-2 outline-none hover:bg-brand-soft focus-visible:ring-2 focus-visible:ring-brand-ring lg:flex"
               style={{ gridColumn: 2 }}
             >
               <span className="h-10 w-1 rounded-full bg-line transition-colors group-hover:bg-brand group-focus-visible:bg-brand" />
             </div>
-            <div className={`min-h-0 flex-1 ${tab === "read" ? "" : "hidden lg:block"} ${swap ? "lg:col-start-1" : "lg:col-start-3"}`}>{viewerPane}</div>
+            <div className={`min-h-0 flex-1 ${tab === "read" ? "" : "hidden lg:block"} ${split.swap ? "lg:col-start-1" : "lg:col-start-3"}`}>{viewerPane}</div>
           </>
         )}
       </div>
+      <ShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }

@@ -115,7 +115,7 @@ PdfViewer fills remaining height; background `surface-2`; page canvas white (or 
 ### Keyboard (ignored while typing in an input/textarea or with Ctrl/Meta/Alt)
 | Key | Action |
 |---|---|
-| `1`–`8` / `A`–`H` | Choose option |
+| `1`–`8` | Choose option (letters are **not** option keys: `B`, `R`, `S`, `N`, `Q`, `V` are actions) |
 | `Enter` | Check if a choice exists; else Next if checked |
 | `N` / `Shift+N` | Next / previous question |
 | `B` | Toggle bookmark |
@@ -157,7 +157,7 @@ First usable (page visible + first question interactive) < 3 s on mid-range Andr
 Back: "← Study" · Progress: "{n} of {N} pages read" · Toolbar: "Previous page", "Next page", "Go to page", "Zoom out", "Zoom in", "Invert pages", "Swap sides", "Hide PDF", "Show PDF", "More" · Practice: "Focus", "List", "Follow my reading", "Reading: PDF page {n} · printed page {label}" · Question: "Select all that apply.", "Check", "Try again", "Show in NCERT", "Save"/"Saved", "Previous", "Next question", "Next page with questions" · Result: "Correct.", "Not quite.", "Correct answer", "Your answer", "From the page: “{text}”", "Only your first attempt counts toward your accuracy." · Summary: "Page complete", "{k} of {n} correct", "Retry the ones you missed", "Keep reading" · Guest: "Guest mode — everything is free. Progress and bookmarks stay in this browser. Sign in to keep them on all your devices." + "Sign in" · Follow chip: "Page {x} has {k} questions — Switch" · Errors/empties: as §7 and Toasts in flows 3, 8.
 
 ## 13. Edge cases
-1. `p` = 0, negative, non-numeric, > N → clamp / ignore. 2. Printed label missing → "—". 3. `unit_intro` pages have no questions; they still count for reading progress. 4. Option text very long or multi-line (preserve line breaks, wrap). 5. Match-the-column on narrow panes: stack columns. 6. Rapid double Check → one attempt. 7. Switching page while an unchecked selection exists → selection kept per question in memory. 8. Tab hidden while timing → timer pauses. 9. Two tabs, same user: attempts append, progress last-write-wins. 10. Question version changes while open → next load uses new version; attempts keep their original version. 11. User zoomed to 300 % on phone → horizontal scroll inside PDF pane only. 12. PDF fails but questions load → practice still works. 13. Guest clears browser data → progress lost; banner states it. 14. Student rotates device → layout re-evaluates at breakpoint, state preserved.
+1. `p` must be a positive whole number: `0`, negative, `2.5`, `abc` are ignored (falls back to the last read page, then page 1); a number above N clamps to N. 2. Printed label missing → "—". 3. `unit_intro` pages have no questions; they still count for reading progress. 4. Option text very long or multi-line (preserve line breaks, wrap). 5. Match-the-column on narrow panes: stack columns. 6. Rapid double Check → one attempt. 7. Switching page while an unchecked selection exists → selection kept per question in memory. 8. Tab hidden while timing → timer pauses. 9. Two tabs, same user: attempts append, progress last-write-wins. 10. Question version changes while open → next load uses new version; attempts keep their original version. 11. User zoomed to 300 % on phone → horizontal scroll inside PDF pane only. 12. PDF fails but questions load → practice still works. 13. Guest clears browser data → progress lost; banner states it. 14. Student rotates device → layout re-evaluates at breakpoint, state preserved.
 
 ## 14. Acceptance tests
 1. Given a live chapter, when I open `/study/class11-bio-ch01`, then the PDF shows page 1 (or my last page) and the practice pane shows that page's questions or an empty state with a jump button.
@@ -210,3 +210,4 @@ None. Confirmed by the owner on 2026-11-07: Follow my reading default ON; keys `
 |---|---|
 | 2026-11-07 | First full draft from the as-built workspace, canvas boards and decisions |
 | 2026-11-07 | Owner approved; status Ready |
+| 2026-11-08 | B3a: letters removed as option keys (they collided with `B` bookmark, `R`, `S`, `N`, `Q`, `V`); `?` opens the shortcuts dialog; invalid `?p=` rule made exact; follow rule evaluated 800 ms after the PDF page changes (never when an answer is given); first-attempt result (`firstCorrect`) tracked for the page summary |
