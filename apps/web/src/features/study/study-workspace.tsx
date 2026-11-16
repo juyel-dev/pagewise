@@ -3,11 +3,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { PdfViewer, type PdfViewerHandle } from "@/components/viewer/pdf-viewer";
-import { isCorrect } from "@pagewise/question-schema";
 import { createClient } from "@/lib/supabase/client";
 import { setQuestionStatus } from "../review/actions";
-import { followDecision, nextPageWithQuestions } from "./logic";
+import { followDecision, nextPageWithQuestions, pageSummary, pagesWithQuestions, primaryAction } from "./logic";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Switch } from "@/components/ui/field";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Badge } from "@/components/ui/chip";
+import { PageChipRail } from "./page-chip-rail";
+import { PageSummary } from "./page-summary";
+import { PdfToolbar } from "./pdf-toolbar";
+import { PracticeFooter } from "./practice-footer";
 import { QuestionCard } from "./question-card";
+import { StudyTabs } from "./study-tabs";
+import { WorkspaceHeader } from "./workspace-header";
 import { ShortcutsDialog } from "./shortcuts-dialog";
 import { createStudyStore } from "./store-wiring";
 import type { PageMapRow, StudyChapter, StudyQuestion } from "./types";
@@ -15,9 +25,6 @@ import { usePracticeSession } from "./use-practice-session";
 import { useReadingProgress } from "./use-reading-progress";
 import { useSplitPane } from "./use-split-pane";
 import { useWorkspaceShortcuts } from "./use-workspace-shortcuts";
-
-const btn = "inline-flex h-9 items-center rounded-lg border border-line bg-surface px-3 text-sm text-ink hover:bg-surface-2 disabled:opacity-50";
-const btnPrimary = "inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50";
 
 type Props = {
   chapter: StudyChapter; pageMap: PageMapRow[]; pdfUrl: string | null; isAdmin: boolean; review: boolean;
@@ -44,6 +51,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const [showViewer, setShowViewer] = useState(true);
   const [tab, setTab] = useState<"read" | "practise">("practise");
   const [helpOpen, setHelpOpen] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [pdfIssue, setPdfIssue] = useState(false);
   const [viewerKey, setViewerKey] = useState(0);
   const [jump, setJump] = useState("");
@@ -52,8 +60,8 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const readyRef = useRef(false);
 
   const total = numPages || chapter.pageCount;
-  const { page, onPageChange } = useReadingProgress({ chapter, store, initialPage, seenPages, pageCount: total, enabled: !review, ready: viewerReady });
-  const { states, bookmarks, practisedPage, practisePage, focusIdx, setFocusIdx, notice, setNotice, pick, check, retry, toggleBookmark } = usePracticeSession({ chapter, store, questionsByPage, bookmarkedIds });
+  const { page, onPageChange, seenCount } = useReadingProgress({ chapter, store, initialPage, seenPages, pageCount: total, enabled: !review, ready: viewerReady });
+  const { states, bookmarks, practisedPage, practisePage, focusIdx, setFocusIdx, notice, setNotice, pick, check, retry, toggleBookmark } = usePracticeSession({ chapter, store, questionsByPage, bookmarkedIds, initialPage });
 
   const labelOf = (p: number) => pageMap.find((m) => m.pdf_page === p)?.printed_label ?? String(p);
   const signInHref = `/sign-in?next=${encodeURIComponent(`/study/${chapter.slug}?p=${page}`)}`;
@@ -63,10 +71,38 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
   const activePage = review ? page : practisedPage;
   const qs = questionsFor(activePage);
   const nextWithQ = nextPageWithQuestions(questionsByPage, page);
+  const nextPracticePage = activePage ? nextPageWithQuestions(questionsByPage, activePage) : undefined;
+  const summary = pageSummary(qs, states);
+  const isLast = qs.length === 0 || focusIdx >= qs.length - 1;
   const cur = qs[Math.min(focusIdx, Math.max(qs.length - 1, 0))];
   const effMode = review ? "list" : mode;
   const hasSource = Boolean(pdfUrl || localData);
   const bookmark = (q: StudyQuestion) => toggleBookmark(q, activePage ?? page);
+
+  function selectPage(p: number | null) { practisePage(p); setShowSummary(false); }
+  function goNext() {
+    if (!isLast) setFocusIdx((i) => i + 1);
+    else if (cur && states[cur.id]?.checked) setShowSummary(true);
+  }
+  function goNextPage() {
+    if (nextPracticePage === undefined) return;
+    selectPage(nextPracticePage);
+    viewer.current?.scrollToPage(nextPracticePage);
+  }
+  const primary = primaryAction({ state: cur ? states[cur.id] : undefined, isLast, summaryShown: showSummary, hasNextPage: nextPracticePage !== undefined });
+  function runPrimary() {
+    if (primary === "check" && cur) check(cur);
+    else if (primary === "next" || primary === "summary") goNext();
+    else if (primary === "nextPage") goNextPage();
+  }
+  function retryMissed() {
+    const missed = qs.filter((q) => summary.wrongIds.includes(q.id));
+    missed.forEach(retry);
+    setShowSummary(false);
+    setMode("focus");
+    setFocusIdx(Math.max(0, qs.findIndex((q) => q.id === missed[0]?.id)));
+  }
+  function keepReading() { setShowSummary(false); setMode("list"); }
 
   function onReady({ doc }: { doc: { numPages: number } }) {
     setNumPages(doc.numPages);
@@ -86,7 +122,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     if (review) return;
     const t = setTimeout(() => {
       const decision = followDecision({ follow, practisedPage: latest.current.practisedPage, targetPage: page, map: questionsByPage, states: latest.current.states });
-      if (decision === "switch") { practisePage(page); setDeferredPage(null); }
+      if (decision === "switch") { selectPage(page); setDeferredPage(null); }
       else setDeferredPage(decision === "defer" ? page : null);
     }, 800);
     return () => clearTimeout(t);
@@ -94,7 +130,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [follow, page, review]);
 
-  function practiseHere() { practisePage(page); setDeferredPage(null); setTab("practise"); }
+  function practiseHere() { selectPage(page); setDeferredPage(null); setTab("practise"); }
 
   useWorkspaceShortcuts({
     choose: ({ index }) => { if (cur && !states[cur.id]?.checked && index < cur.payload.options.length) pick(cur, index); },
@@ -102,9 +138,9 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
       if (!cur) return;
       const st = states[cur.id];
       if (st && st.chosen.length > 0 && !st.checked) check(cur);
-      else if (st?.checked) setFocusIdx((i) => Math.min(i + 1, qs.length - 1));
+      else if (st?.checked) goNext();
     },
-    next: () => setFocusIdx((i) => Math.min(i + 1, Math.max(qs.length - 1, 0))),
+    next: () => goNext(),
     previous: () => setFocusIdx((i) => Math.max(i - 1, 0)),
     bookmark: () => { if (cur) bookmark(cur); },
     source: () => { if (cur && activePage) viewer.current?.scrollToPage(activePage, true); },
@@ -157,160 +193,120 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
     if (hit) viewer.current?.scrollToPage(hit.pdf_page);
   }
 
-  const practicePane = (
-    <section aria-label={review ? "Review" : "Practice"} className="flex h-full min-h-0 flex-col overflow-auto bg-surface p-4">
-      {review ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-text">Review mode · staff only</span>
-          <button className={btnPrimary} disabled={pending || qs.every((q) => q.status === "published") || qs.length === 0}
-            onClick={() => setStatus(qs.filter((q) => q.status !== "published").map((q) => q.id), "published")}>
-            Publish all on this page ({qs.filter((q) => q.status !== "published").length})
-          </button>
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center gap-2">
-          <button className={btnPrimary} onClick={practiseHere} disabled={here === 0}>
-            Practice this page · {here} {here === 1 ? "question" : "questions"}
-          </button>
-          {deferredPage !== null && deferredPage !== practisedPage && (
-            <button type="button" className={btn} onClick={() => { practisePage(deferredPage); setDeferredPage(null); }}>Page {labelOf(deferredPage)} has {questionsFor(deferredPage).length} questions — Switch</button>
-          )}
-          {here === 0 && nextWithQ && <button className={btn} onClick={() => viewer.current?.scrollToPage(nextWithQ)}>Go to next page with questions</button>}
-          <div className="ml-auto flex gap-1" role="group" aria-label="Question mode">
-            <button className={`${btn} ${mode === "focus" ? "bg-brand-soft text-brand-text" : ""}`} aria-pressed={mode === "focus"} onClick={() => setMode("focus")}>Focus</button>
-            <button className={`${btn} ${mode === "list" ? "bg-brand-soft text-brand-text" : ""}`} aria-pressed={mode === "list"} onClick={() => setMode("list")}>List</button>
-          </div>
-        </div>
-      )}
-      <p className="mt-2 text-xs text-muted" aria-live="polite">Reading: PDF page {page} · printed page {labelOf(page)}</p>
-      {guest && !review && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-canvas px-3 py-2.5">
-          <p className="min-w-0 flex-1 text-xs leading-5 text-ink-2"><span className="font-medium text-ink">Guest mode — everything is free.</span> Every chapter and every question is open to you. Progress and bookmarks stay in this browser; sign in to sync them across devices.</p>
-          <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-hover">Sign in</Link>
-        </div>
-      )}
-      {!hasAny && !review && <p className="mt-4 text-sm text-ink-2">Questions for this chapter are still being reviewed. Every question is checked before it is published, so none are shown yet. You can read the chapter in the meantime.</p>}
-      {!hasAny && review && <p className="mt-4 text-sm text-ink-2">No questions in this chapter yet. Import them from Admin → Import questions.</p>}
-      {review && hasAny && qs.length === 0 && <p className="mt-4 text-sm text-ink-2">No questions on this page.{nextWithQ ? " Use “Go to next page with questions” in the page controls." : ""}</p>}
+  const railPages = pagesWithQuestions(questionsByPage).map((p) => ({ pdfPage: p, label: labelOf(p), count: questionsByPage[String(p)].length, complete: pageSummary(questionsByPage[String(p)], states).complete }));
+  const nextPracticeLabel = nextPracticePage !== undefined ? labelOf(nextPracticePage) : undefined;
 
-      {activePage && qs.length > 0 && (
-        <div className="mt-4 space-y-3">
-          <h2 className="text-sm font-semibold text-ink-2">{review ? "Questions" : "Questions"} for printed page {labelOf(activePage)}</h2>
-          {effMode === "focus" && cur && (
-            <>
-              <QuestionCard q={cur} index={Math.min(focusIdx, qs.length - 1)} total={qs.length} state={states[cur.id]} bookmarked={bookmarks.has(cur.id)}
-                onPick={(i) => pick(cur, i)} onCheck={() => check(cur)} onRetry={() => retry(cur)} onBookmark={() => bookmark(cur)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
-              <div className="flex items-center justify-between">
-                <button className={btn} disabled={focusIdx === 0} onClick={() => setFocusIdx((i) => i - 1)}>Previous</button>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-ink-2" aria-live="polite">Question {focusIdx + 1} of {qs.length}</span>
-                  <ol aria-label="Question progress" className="flex items-center gap-1">
-                    {qs.map((q, i) => {
-                      const answer = states[q.id];
-                      const correct = Boolean(answer?.checked && isCorrect(answer.chosen, q.payload.correct));
-                      const incorrect = Boolean(answer?.checked && !correct);
-                      const status = correct ? "answered correctly" : incorrect ? "answered incorrectly" : "not answered";
-                      const current = i === focusIdx;
-                      return (
-                        <li key={q.id}>
-                          <button type="button" aria-current={current ? "step" : undefined}
-                            aria-label={`Go to question ${i + 1}, ${current ? "current, " : ""}${status}`}
-                            title={`Question ${i + 1}: ${status}`} onClick={() => setFocusIdx(i)}
-                            className={`grid size-6 place-items-center rounded-full border text-[10px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ring ${
-                              current ? "border-brand bg-brand-soft text-brand-text" :
-                              correct ? "border-good bg-good-soft text-good" :
-                              incorrect ? "border-bad bg-bad-soft text-bad" :
-                              "border-line bg-surface text-muted"
-                            }`}>
-                            {correct ? "✓" : incorrect ? "×" : current ? String(i + 1) : "•"}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ol>
-                </div>
-                <button className={btn} disabled={focusIdx >= qs.length - 1} onClick={() => setFocusIdx((i) => i + 1)}>Next</button>
-              </div>
-            </>
+  const practicePane = (
+    <section aria-label={review ? "Review" : "Practice"} className="flex h-full min-h-0 flex-col bg-surface">
+      <div className="flex flex-col gap-3 border-b border-line px-4 py-3">
+        {review ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="accent">Review mode · staff only</Badge>
+            <Button size="sm" disabled={pending || qs.every((q) => q.status === "published") || qs.length === 0}
+              onClick={() => setStatus(qs.filter((q) => q.status !== "published").map((q) => q.id), "published")}>
+              Publish all on this page ({qs.filter((q) => q.status !== "published").length})
+            </Button>
+          </div>
+        ) : (
+          <>
+            <PageChipRail pages={railPages} current={practisedPage} onSelect={(p) => { selectPage(p); viewer.current?.scrollToPage(p); }} />
+            <div className="flex flex-wrap items-center gap-3">
+              <SegmentedControl label="Question view" size="sm" value={mode} onChange={setMode} options={[{ value: "focus", label: "Focus" }, { value: "list", label: "List" }]} />
+              <Switch label="Follow my reading" checked={follow} onCheckedChange={setFollow} className="ml-auto min-h-0" />
+            </div>
+          </>
+        )}
+        <p className="text-small text-muted" aria-live="polite">Reading: PDF page {page} · printed page {labelOf(page)}</p>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-auto px-4 py-4">
+        <div className="mx-auto flex max-w-[720px] flex-col gap-4">
+          {guest && !review && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-brand/20 bg-brand-soft px-3 py-2.5">
+              <p className="min-w-0 flex-1 text-small text-ink-2"><span className="font-medium text-ink">Guest mode — everything is free.</span> Progress and bookmarks stay in this browser. Sign in to keep them on all your devices.</p>
+              <Link href={signInHref} className="shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-small font-medium text-white hover:bg-brand-hover">Sign in</Link>
+            </div>
           )}
-          {effMode === "list" && qs.map((q, i) => (
-            <QuestionCard key={q.id} q={q} index={i} total={qs.length} state={states[q.id]} bookmarked={bookmarks.has(q.id)}
-              review={review ? { busy: pending, onSet: (st) => setStatus([q.id], st) } : undefined}
-              onPick={(oi) => pick(q, oi)} onCheck={() => check(q)} onRetry={() => retry(q)} onBookmark={() => bookmark(q)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
-          ))}
+          {deferredPage !== null && deferredPage !== practisedPage && !review && (
+            <button type="button" className="self-start rounded-full bg-accent-soft px-3 py-1.5 text-small text-accent-text hover:underline" onClick={() => { selectPage(deferredPage); setDeferredPage(null); }}>
+              Page {labelOf(deferredPage)} has {questionsFor(deferredPage).length} questions — Switch
+            </button>
+          )}
+
+          {!hasAny && !review && <EmptyState title="Questions are on the way">Questions for this chapter are still being reviewed. Every question is checked before it is published, so none are shown yet. You can read the chapter now.</EmptyState>}
+          {!hasAny && review && <EmptyState title="No questions yet">No questions in this chapter yet. Import them from Admin → Import questions.</EmptyState>}
+          {hasAny && !activePage && !review && (
+            <EmptyState title="No questions on this page" action={nextWithQ ? <Button variant="secondary" onClick={() => { selectPage(nextWithQ); viewer.current?.scrollToPage(nextWithQ); }}>Go to page {labelOf(nextWithQ)}</Button> : undefined}>
+              {nextWithQ ? `The next page with questions is page ${labelOf(nextWithQ)}.` : "There are no more pages with questions after this one."}
+            </EmptyState>
+          )}
+          {review && hasAny && qs.length === 0 && <EmptyState title="No questions on this page">{nextWithQ ? "Use the page controls to go to the next page with questions." : "There are no more pages with questions after this one."}</EmptyState>}
+
+          {activePage && qs.length > 0 && (
+            showSummary && !review ? (
+              <PageSummary summary={summary} nextPageLabel={nextPracticeLabel} onNextPage={nextPracticePage !== undefined ? goNextPage : undefined} onRetryMissed={retryMissed} onKeepReading={keepReading} />
+            ) : (
+              <>
+                <h2 className="text-label text-ink-2">Questions for printed page {labelOf(activePage)}</h2>
+                {effMode === "focus" && cur && (
+                  <QuestionCard q={cur} index={Math.min(focusIdx, qs.length - 1)} total={qs.length} state={states[cur.id]} bookmarked={bookmarks.has(cur.id)}
+                    onPick={(i) => pick(cur, i)} onCheck={() => check(cur)} onRetry={() => retry(cur)} onBookmark={() => bookmark(cur)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
+                )}
+                {effMode === "list" && qs.map((q, i) => (
+                  <QuestionCard key={q.id} q={q} index={i} total={qs.length} state={states[q.id]} bookmarked={bookmarks.has(q.id)}
+                    review={review ? { busy: pending, onSet: (st) => setStatus([q.id], st) } : undefined}
+                    onPick={(oi) => pick(q, oi)} onCheck={() => check(q)} onRetry={() => retry(q)} onBookmark={() => bookmark(q)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
+                ))}
+              </>
+            )
+          )}
         </div>
+      </div>
+
+      {!review && effMode === "focus" && activePage && qs.length > 0 && (
+        <PracticeFooter questions={qs} states={states} index={Math.min(focusIdx, qs.length - 1)} onSelect={setFocusIdx}
+          onPrevious={() => { setShowSummary(false); setFocusIdx((i) => Math.max(0, i - 1)); }} onNext={goNext}
+          primary={primary} onPrimary={runPrimary} canShowSource={Boolean(cur && states[cur.id]?.checked)} onSource={() => viewer.current?.scrollToPage(activePage, true)} />
       )}
     </section>
   );
 
-  const viewerPane = hasSource ? (
+  const viewerContent = hasSource ? (
     <PdfViewer key={viewerKey} ref={viewer} data={localData} url={localData ? null : pdfUrl} zoom={zoom} darkPages={dark} onPageChange={onPageChange} onReady={onReady}
       onError={() => setPdfIssue(true)} onRetry={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }} />
   ) : (
-    <div className="flex h-full flex-col items-center justify-center gap-3 bg-surface-2 p-6 text-center">
-      <h2 className="text-lg font-semibold text-ink">Chapter PDF not available yet</h2>
-      <p className="max-w-sm text-sm text-ink-2">{isAdmin ? "Choose the chapter PDF from your device to read it now. You can then upload it to private storage." : "The NCERT page for this chapter is not published yet."}</p>
-      {isAdmin && (
-        <label className={`${btnPrimary} cursor-pointer`}>Choose PDF from device
-          <input type="file" accept="application/pdf" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
-        </label>
-      )}
+    <EmptyState className="h-full justify-center" title="Chapter PDF not available yet"
+      action={isAdmin ? <label className="inline-flex h-10 cursor-pointer items-center rounded-full bg-brand px-4 text-label text-white hover:bg-brand-hover">Choose PDF from device<input type="file" accept="application/pdf" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} /></label> : undefined}>
+      {isAdmin ? "Choose the chapter PDF from your device to read it now. You can then upload it to private storage." : "The NCERT page for this chapter is not published yet."}
+    </EmptyState>
+  );
+
+  const viewerPane = (
+    <div className="flex h-full min-h-0 flex-col bg-surface-2">
+      <PdfToolbar page={page} total={total} label={labelOf(page)} hasSource={hasSource}
+        onPrevious={() => viewer.current?.scrollToPage(page - 1)} onNext={() => viewer.current?.scrollToPage(page + 1)}
+        jump={jump} onJumpChange={setJump} onJumpSubmit={goPrinted} jumpInput={jumpInput}
+        zoom={zoom} onZoom={setZoom} dark={dark} onDark={setDark} showViewer={showViewer} onToggleViewer={toggleViewer} onSwap={split.toggleSwap}
+        extra={isAdmin && localData && !pdfUrl ? <Button variant="secondary" size="sm" onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF"}</Button> : undefined} />
+      <div className="min-h-0 flex-1">{viewerContent}</div>
     </div>
   );
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col">
-      <div className="border-b border-line bg-surface px-3 py-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href={review ? "/review" : "/study"} className={btn}>← {review ? "Review" : "Study"}</Link>
-          <strong className="min-w-0 max-w-[16rem] flex-1 truncate text-sm text-ink">{chapter.title}</strong>
-          {chapter.status === "draft" && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-text">Draft</span>}
-          <div className="flex items-center gap-1">
-            <button className={btn} onClick={() => viewer.current?.scrollToPage(page - 1)} disabled={page <= 1 || !hasSource} aria-label="Previous page">‹</button>
-            <span className="min-w-28 text-center text-xs text-ink-2">PDF {page}/{total} · printed {labelOf(page)}</span>
-            <button className={btn} onClick={() => viewer.current?.scrollToPage(page + 1)} disabled={page >= total || !hasSource} aria-label="Next page">›</button>
-          </div>
-          <input ref={jumpInput} value={jump} onChange={(e) => setJump(e.target.value)} onKeyDown={(e) => e.key === "Enter" && goPrinted()} inputMode="numeric"
-            aria-label="Go to printed page" placeholder="Go to page" className="h-9 w-24 rounded-lg border border-control-border bg-field px-2 text-xs" />
-          <div className="flex items-center gap-1" role="group" aria-label="PDF zoom">
-            <button className={btn} onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} aria-label="Zoom out">−</button>
-            <span className="w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-            <button className={btn} onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))} aria-label="Zoom in">+</button>
-          </div>
-          <details className="relative ml-auto lg:hidden">
-            <summary className={`${btn} cursor-pointer`}>More</summary>
-            <div className="absolute right-0 z-30 mt-2 flex w-56 flex-col gap-3 rounded-xl border border-line bg-surface p-3 shadow-window">
-              <button className={btn} onClick={toggleViewer}>{showViewer ? "Hide PDF" : "Show PDF"}</button>
-              {!review && <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
-              <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
-              {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload PDF"}</button>}
-            </div>
-          </details>
-          <div className="hidden items-center gap-3 lg:flex">
-            {!review && <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} />Follow my reading</label>}
-            <label className="flex items-center gap-1 text-xs text-ink-2"><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} />Invert pages</label>
-            <button className={btn} onClick={split.toggleSwap}>Swap sides</button>
-            <button className={btn} onClick={toggleViewer}>{showViewer ? "Hide" : "Show"} PDF (V)</button>
-            {isAdmin && localData && !pdfUrl && <button className={btn} onClick={uploadToStorage} disabled={uploading}>{uploading ? "Uploading…" : "Upload this PDF"}</button>}
-          </div>
-        </div>
-      </div>
-      {notice && <p role="alert" className="bg-bad-soft px-3 py-1 text-xs text-bad">{notice}</p>}
-      {pdfIssue && <div role="alert" className="flex flex-wrap items-center justify-between gap-2 bg-bad-soft px-3 py-2 text-xs text-bad">
+      <WorkspaceHeader backHref={review ? "/review" : "/study"} backLabel={review ? "Review" : "Study"} title={chapter.title} draft={chapter.status === "draft"} seen={seenCount} total={total} />
+      {notice && <p role="alert" className="bg-bad-soft px-4 py-1.5 text-small text-bad">{notice}</p>}
+      {pdfIssue && <div role="alert" className="flex flex-wrap items-center justify-between gap-2 bg-bad-soft px-4 py-2 text-small text-bad">
         <span>A PDF page could not be displayed.</span>
-        <button type="button" className="rounded-md border border-current px-2 py-1 font-medium" onClick={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }}>Reload PDF</button>
+        <Button variant="secondary" size="sm" onClick={() => { setPdfIssue(false); setViewerKey((key) => key + 1); }}>Reload PDF</Button>
       </div>}
-      <div className="flex border-b border-line lg:hidden" role="group" aria-label="Study panels">
-        {(["read", "practise"] as const).filter((t) => t !== "read" || showViewer).map((t) => (
-          <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)} className={`flex-1 py-2 text-sm ${tab === t ? "border-b-2 border-brand font-medium text-brand-text" : "text-ink-2"}`}>{t === "read" ? "Read" : review ? "Review" : "Practise"}</button>
-        ))}
-      </div>
+      <StudyTabs value={tab} onChange={setTab} showRead={showViewer} practiseLabel={review ? "Review" : "Practise"} />
       <div
         ref={attachSplit}
         className={`flex min-h-0 flex-1 flex-col lg:grid ${showViewer ? "" : "lg:grid-cols-1"}`}
         style={showViewer ? { gridTemplateColumns: `minmax(${split.leftMin}px, ${split.leftWidth}px) 12px minmax(${split.rightMin}px, 1fr)` } : undefined}
       >
-        <div className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (split.swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
+        <div id="study-pane-practise" role="tabpanel" aria-labelledby="study-tab-practise" className={`min-h-0 flex-1 ${tab === "practise" ? "" : "hidden lg:block"} ${showViewer ? (split.swap ? "lg:col-start-3" : "lg:col-start-1") : "lg:col-start-1"}`}>{practicePane}</div>
         {showViewer && (
           <>
             <div
@@ -330,7 +326,7 @@ export function StudyWorkspace({ chapter, pageMap, pdfUrl, isAdmin, review, ques
             >
               <span className="h-10 w-1 rounded-full bg-line transition-colors group-hover:bg-brand group-focus-visible:bg-brand" />
             </div>
-            <div className={`min-h-0 flex-1 ${tab === "read" ? "" : "hidden lg:block"} ${split.swap ? "lg:col-start-1" : "lg:col-start-3"}`}>{viewerPane}</div>
+            <div id="study-pane-read" role="tabpanel" aria-labelledby="study-tab-read" className={`min-h-0 flex-1 ${tab === "read" ? "" : "hidden lg:block"} ${split.swap ? "lg:col-start-1" : "lg:col-start-3"}`}>{viewerPane}</div>
           </>
         )}
       </div>

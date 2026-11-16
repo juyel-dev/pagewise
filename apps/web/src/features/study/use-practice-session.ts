@@ -7,16 +7,16 @@ import type { QState, StudyChapter, StudyQuestion } from "./types";
 
 const nowMs = () => Date.now();
 
-type Options = { chapter: StudyChapter; store: StudyStore; questionsByPage: QuestionsByPage; bookmarkedIds: string[] };
+type Options = { chapter: StudyChapter; store: StudyStore; questionsByPage: QuestionsByPage; bookmarkedIds: string[]; /** Page to practise on first render, when it has questions. */ initialPage?: number };
 
 /**
  * Practice state for the workspace: answers, bookmarks, which page is being practised and which
  * question is in focus. Saving goes through the `StudyStore`, so this hook never asks "guest or not?".
  */
-export function usePracticeSession({ chapter, store, questionsByPage, bookmarkedIds }: Options) {
+export function usePracticeSession({ chapter, store, questionsByPage, bookmarkedIds, initialPage }: Options) {
   const [states, setStates] = useState<Record<string, QState>>({});
   const [bookmarks, setBookmarks] = useState<Set<string>>(() => new Set(bookmarkedIds));
-  const [practisedPage, setPractisedPage] = useState<number | null>(null);
+  const [practisedPage, setPractisedPage] = useState<number | null>(() => (initialPage && (questionsByPage[String(initialPage)]?.length ?? 0) > 0 ? initialPage : null));
   const [focusIdx, setFocusIdx] = useState(0);
   const [notice, setNotice] = useState("");
   const startedAt = useRef<Record<string, number>>({});
