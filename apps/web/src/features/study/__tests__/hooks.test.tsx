@@ -93,6 +93,13 @@ describe("usePracticeSession", () => {
     await act(async () => {});
     expect(result.current.bookmarks.has("b")).toBe(true);
   });
+  it("starts on the initial page when it has questions, otherwise on none", () => {
+    const store = fakeStore();
+    const withQs = renderHook(() => usePracticeSession({ chapter, store, questionsByPage: map, bookmarkedIds: [], initialPage: 4 }));
+    expect(withQs.result.current.practisedPage).toBe(4);
+    const without = renderHook(() => usePracticeSession({ chapter, store, questionsByPage: map, bookmarkedIds: [], initialPage: 7 }));
+    expect(without.result.current.practisedPage).toBeNull();
+  });
   it("practisePage focuses the first unanswered question", () => {
     const { result } = setup();
     act(() => result.current.pick(map["4"][0], 1));
@@ -121,6 +128,7 @@ describe("useReadingProgress", () => {
     act(() => result.current.onPageChange(3));
     act(() => { vi.advanceTimersByTime(1000); });
     expect(vi.mocked(store.saveProgress).mock.calls[1][0]).toMatchObject({ lastPage: 3, pagesSeen: [1, 2, 3] });
+    expect(result.current.seenCount).toBe(3);
   });
   it("rapid page changes save only the last page", () => {
     const store = fakeStore();

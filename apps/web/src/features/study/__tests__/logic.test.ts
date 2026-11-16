@@ -179,3 +179,18 @@ describe("shortcuts", () => {
     expect(shortcutFor({ key: "v", altKey: true })).toBeNull();
   });
 });
+
+import { primaryAction } from "../logic";
+describe("primaryAction (phone action bar)", () => {
+  const chosen: QState = { chosen: [1], checked: false, attemptNo: 1 };
+  const checked: QState = { chosen: [1], checked: true, attemptNo: 1, firstCorrect: true };
+  it("walks Check → Next question → page summary → next page", () => {
+    expect(primaryAction({ state: undefined, isLast: false, summaryShown: false, hasNextPage: true })).toBe("none");
+    expect(primaryAction({ state: { chosen: [], checked: false, attemptNo: 1 }, isLast: false, summaryShown: false, hasNextPage: true })).toBe("none");
+    expect(primaryAction({ state: chosen, isLast: false, summaryShown: false, hasNextPage: true })).toBe("check");
+    expect(primaryAction({ state: checked, isLast: false, summaryShown: false, hasNextPage: true })).toBe("next");
+    expect(primaryAction({ state: checked, isLast: true, summaryShown: false, hasNextPage: true })).toBe("summary");
+    expect(primaryAction({ state: checked, isLast: true, summaryShown: true, hasNextPage: true })).toBe("nextPage");
+    expect(primaryAction({ state: checked, isLast: true, summaryShown: true, hasNextPage: false })).toBe("none");
+  });
+});

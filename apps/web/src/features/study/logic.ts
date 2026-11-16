@@ -109,6 +109,20 @@ export function retryQuestion(state: QState | undefined): QState {
   return { chosen: [], checked: false, attemptNo: (state?.attemptNo ?? 1) + 1, firstCorrect: state?.firstCorrect };
 }
 
+export type PrimaryAction = "check" | "next" | "summary" | "nextPage" | "none";
+
+/**
+ * What the single big button (phone action bar) does right now:
+ * Check (a choice is made) → Next question → Page summary (last question done) → Next page.
+ */
+export function primaryAction(i: { state: QState | undefined; isLast: boolean; summaryShown: boolean; hasNextPage: boolean }): PrimaryAction {
+  const s = i.state;
+  if (i.summaryShown) return i.hasNextPage ? "nextPage" : "none";
+  if (!s || (!s.checked && s.chosen.length === 0)) return "none";
+  if (!s.checked) return "check";
+  return i.isLast ? "summary" : "next";
+}
+
 // ---------- source passage finder ----------
 
 /** Normalises text so PDF text and our stored `source_text` can be compared: ligatures, quotes, dashes, hyphenation, spacing. */

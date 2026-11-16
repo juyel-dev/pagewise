@@ -210,4 +210,5 @@ None. Confirmed by the owner on 2026-11-07: Follow my reading default ON; keys `
 |---|---|
 | 2026-11-07 | First full draft from the as-built workspace, canvas boards and decisions |
 | 2026-11-07 | Owner approved; status Ready |
+| 2026-11-09 | B3b: bookmark control is always labelled “Save question” with `aria-pressed` (visible text “Save”) and page chips are named “p.77, 4 questions” so the spoken name contains the visible text (WCAG 2.5.3); the opening page's questions show immediately when it has questions |
 | 2026-11-08 | B3a: letters removed as option keys (they collided with `B` bookmark, `R`, `S`, `N`, `Q`, `V`); `?` opens the shortcuts dialog; invalid `?p=` rule made exact; follow rule evaluated 800 ms after the PDF page changes (never when an answer is given); first-attempt result (`firstCorrect`) tracked for the page summary |
